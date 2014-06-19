@@ -26,8 +26,10 @@
 
   this.StripeRain = (function() {
     function StripeRain(_opts) {
+      var _base;
       this.options = _opts;
       this.two = this.options.two;
+      (_base = this.options).rotation || (_base.rotation = 0);
       this._init();
     }
 
@@ -38,24 +40,23 @@
     };
 
     StripeRain.prototype.addSome = function() {
-      this.target || (this.target = 250);
-      if (this.target === 250 && this.stripes.length > 250) {
-        this.target = 0;
-      }
-      if (this.target === 0 && this.stripes.length === 0) {
-        this.target = 250;
-      }
-      if (this.stripes.length < 250) {
+      if (this.stripes.length < 50) {
         this.addOne();
         return this.addOne();
       }
     };
 
     StripeRain.prototype._init = function() {
+      var _this = this;
       this.stripes = new Backbone.Collection([]);
       this.stripes.on('add', this._added, this);
       this.stripes.on('remove', this.addSome, this);
+      this.stripes.on('remove', function(stripe) {
+        return _this.group.remove(stripe.get('particle'));
+      });
       this.two.bind('update', this._update, this);
+      this.group = this.two.makeGroup();
+      this.group.rotation = this.options.rotation;
       return this.addOne();
     };
 
@@ -75,7 +76,8 @@
       height = obj.get('height');
       rect = this.two.makeRectangle(Math.random() * this.two.width, -height, 20 + Math.random() * 30, height);
       rect.noStroke();
-      rect.fill = '#000000';
+      rect.fill = this.options.color || '#000000';
+      rect.addTo(this.group);
       return obj.set({
         particle: rect
       });

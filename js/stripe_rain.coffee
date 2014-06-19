@@ -10,18 +10,14 @@ class @StripeRain
   constructor: (_opts) ->
     @options = _opts
     @two = @options.two
+    @options.rotation ||= 0
     @_init()
 
   addOne: ->
     @stripes.add(new Stripe({height: @two.height + Math.random()*500}))
 
   addSome: ->
-    @target ||= 250
-
-    @target = 0 if @target == 250 && @stripes.length > 250
-    @target = 250 if @target == 0 && @stripes.length == 0
-
-    if @stripes.length < 250
+    if @stripes.length < 50
       @addOne()
       @addOne()
 
@@ -29,9 +25,12 @@ class @StripeRain
     @stripes = new Backbone.Collection([])
     @stripes.on('add', @_added, this)
     @stripes.on('remove', @addSome, this)
+    @stripes.on 'remove', (stripe) => @group.remove stripe.get('particle')
 
     @two.bind('update', @_update, this)
 
+    @group = @two.makeGroup()
+    @group.rotation = @options.rotation
     @addOne();
 
   _update: (frameCount) ->
@@ -45,6 +44,7 @@ class @StripeRain
     height = obj.get('height')
     rect = @two.makeRectangle(Math.random() * @two.width, -height, 20+Math.random()*30, height);
     rect.noStroke()
-    rect.fill = '#000000'
+    rect.fill = @options.color || '#000000'
+    rect.addTo(@group)
     obj.set({particle: rect})
 

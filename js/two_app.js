@@ -12,9 +12,24 @@
         type: Two.Types.svg
       }).appendTo(document.body);
       $(window).bind('resize', this._resize);
-      this.stripes = new StripeRain({
-        two: this.two
-      });
+      this.stripes = [
+        new StripeRain({
+          two: this.two,
+          color: '#666666',
+          rotation: -0.3
+        }), new StripeRain({
+          two: this.two,
+          color: '#000000',
+          rotation: 0.3 + Math.PI
+        }), new StripeRain({
+          two: this.two,
+          color: '#AAAAAA',
+          rotation: -0.3
+        })
+      ];
+      this.stripes[0].group.translation.set(-800, 0);
+      this.stripes[1].group.translation.set(this.two.width, 200);
+      this.stripes[2].group.translation.set(800, 0);
       return this.two.play();
     };
 
