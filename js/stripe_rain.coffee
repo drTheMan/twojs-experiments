@@ -3,7 +3,7 @@ class Stripe extends Backbone.Model
     @get('particle').translation.y > @get('height') * 1.6
 
   update: ->
-    @get('particle').translation.addSelf(new Two.Vector(0, 30))
+    @get('particle').translation.addSelf(new Two.Vector(0, 20))
 
 
 class @StripeRain
@@ -14,7 +14,31 @@ class @StripeRain
     @_init()
 
   addOne: ->
-    @stripes.add(new Stripe({height: @two.height + Math.random()*500}))
+    height = @two.height + Math.random()*500
+    x = Math.random() * @two.width
+    w = 25
+
+    @stripes.add(new Stripe({
+      x: x,
+      y: -height,
+      width: w,
+      height: height,
+      color: '#54EBFA'}))
+
+    @stripes.add(new Stripe({
+      x: x+w-1,
+      y: -height,
+      width: w,
+      height: height,
+      color: '#ffffff'}))
+
+    @stripes.add(new Stripe({
+      x: x+w+w-2,
+      y: -height,
+      width: w,
+      height: height,
+      color: '#FD031D'}))
+
 
   addSome: ->
     if @stripes.length < 50
@@ -31,6 +55,7 @@ class @StripeRain
 
     @group = @two.makeGroup()
     @group.rotation = @options.rotation
+
     @addOne();
 
   _update: (frameCount) ->
@@ -41,10 +66,9 @@ class @StripeRain
         obj.update()
 
   _added: (obj) ->
-    height = obj.get('height')
-    rect = @two.makeRectangle(Math.random() * @two.width, -height, 20+Math.random()*30, height);
+    rect = @two.makeRectangle(obj.get('x'), obj.get('y'), obj.get('width'), obj.get('height'));
     rect.noStroke()
-    rect.fill = @options.color || '#000000'
+    rect.fill = obj.get('color') || '#000000'
     rect.addTo(@group)
     obj.set({particle: rect})
 

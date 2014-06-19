@@ -17,7 +17,7 @@
     };
 
     Stripe.prototype.update = function() {
-      return this.get('particle').translation.addSelf(new Two.Vector(0, 30));
+      return this.get('particle').translation.addSelf(new Two.Vector(0, 20));
     };
 
     return Stripe;
@@ -34,8 +34,30 @@
     }
 
     StripeRain.prototype.addOne = function() {
+      var height, w, x;
+      height = this.two.height + Math.random() * 500;
+      x = Math.random() * this.two.width;
+      w = 25;
+      this.stripes.add(new Stripe({
+        x: x,
+        y: -height,
+        width: w,
+        height: height,
+        color: '#54EBFA'
+      }));
+      this.stripes.add(new Stripe({
+        x: x + w - 1,
+        y: -height,
+        width: w,
+        height: height,
+        color: '#ffffff'
+      }));
       return this.stripes.add(new Stripe({
-        height: this.two.height + Math.random() * 500
+        x: x + w + w - 2,
+        y: -height,
+        width: w,
+        height: height,
+        color: '#FD031D'
       }));
     };
 
@@ -72,11 +94,10 @@
     };
 
     StripeRain.prototype._added = function(obj) {
-      var height, rect;
-      height = obj.get('height');
-      rect = this.two.makeRectangle(Math.random() * this.two.width, -height, 20 + Math.random() * 30, height);
+      var rect;
+      rect = this.two.makeRectangle(obj.get('x'), obj.get('y'), obj.get('width'), obj.get('height'));
       rect.noStroke();
-      rect.fill = this.options.color || '#000000';
+      rect.fill = obj.get('color') || '#000000';
       rect.addTo(this.group);
       return obj.set({
         particle: rect

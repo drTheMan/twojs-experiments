@@ -7,7 +7,8 @@
     }
 
     TwoApp.prototype.init = function() {
-      var _this = this;
+      var bg,
+        _this = this;
       this.two = new Two({
         autostart: true,
         fullscreen: true,
@@ -31,18 +32,19 @@
           }
         }
       });
+      bg = this.two.makeRectangle(this.two.width / 2, this.two.height / 2, this.two.width, this.two.height);
+      bg.fill = '#000000';
+      bg.noStroke();
+      this.two.add(bg);
       this.stripes = [
         new StripeRain({
           two: this.two,
-          color: '#666666',
           rotation: -0.3
         }), new StripeRain({
           two: this.two,
-          color: '#000000',
           rotation: 0.3 + Math.PI
         }), new StripeRain({
           two: this.two,
-          color: '#AAAAAA',
           rotation: -0.3
         })
       ];
