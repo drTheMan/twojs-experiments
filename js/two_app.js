@@ -7,11 +7,30 @@
     }
 
     TwoApp.prototype.init = function() {
+      var _this = this;
       this.two = new Two({
+        autostart: true,
         fullscreen: true,
         type: Two.Types.svg
       }).appendTo(document.body);
-      $(window).bind('resize', this._resize);
+      $(window).on('resize', this._resize);
+      $(window).on('keydown', function(e, data) {
+        var _ref;
+        if (e.metaKey || e.ctrlKey) {
+          return;
+        }
+        e.preventDefault();
+        if (e.keyCode === 32) {
+          _this.running = (_ref = _this.running === false) != null ? _ref : {
+            "true": false
+          };
+          if (_this.running) {
+            return _this.two.play();
+          } else {
+            return _this.two.pause();
+          }
+        }
+      });
       this.stripes = [
         new StripeRain({
           two: this.two,
@@ -29,8 +48,7 @@
       ];
       this.stripes[0].group.translation.set(-800, 0);
       this.stripes[1].group.translation.set(this.two.width, 200);
-      this.stripes[2].group.translation.set(800, 0);
-      return this.two.play();
+      return this.stripes[2].group.translation.set(800, 0);
     };
 
     TwoApp.prototype._resize = function() {
