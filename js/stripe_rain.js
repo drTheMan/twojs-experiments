@@ -68,6 +68,12 @@
       }
     };
 
+    StripeRain.prototype.getAllParticles = function() {
+      return this.stripes.map(function(stripe) {
+        return stripe.get('particle');
+      });
+    };
+
     StripeRain.prototype._init = function() {
       var _this = this;
       this.stripes = new Backbone.Collection([]);

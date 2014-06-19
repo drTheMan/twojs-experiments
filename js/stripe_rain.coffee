@@ -45,6 +45,9 @@ class @StripeRain
       @addOne()
       @addOne()
 
+  getAllParticles: ->
+    @stripes.map (stripe) -> stripe.get('particle')
+
   _init: ->
     @stripes = new Backbone.Collection([])
     @stripes.on('add', @_added, this)
@@ -72,3 +75,4 @@ class @StripeRain
     rect.addTo(@group)
     obj.set({particle: rect})
 
+    
