@@ -7,7 +7,7 @@ class @TwoApp
     @two = new Two({fullscreen: true, type: Two.Types.svg}).appendTo(document.body)
     $(window).bind('resize', @_resize)
 
-    @stripes = new Stripes({two: @two})
+    @stripes = new StripeRain({two: @two})
     @two.play()
 
   _resize: ->

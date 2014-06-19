@@ -12,7 +12,7 @@
         type: Two.Types.svg
       }).appendTo(document.body);
       $(window).bind('resize', this._resize);
-      this.stripes = new Stripes({
+      this.stripes = new StripeRain({
         two: this.two
       });
       return this.two.play();
