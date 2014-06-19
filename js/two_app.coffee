@@ -51,7 +51,7 @@ class @TwoApp
         @two.pause()
 
   _mouseMove: (event) =>
-    if @lastMouseX && @lastMouseY
+    if @lastMouseX && @lastMouseY && @operations.length < 20
       v = new Two.Vector(event.pageX - @lastMouseX, event.pageY - @lastMouseY)
       all_particles = _.flatten(_.map(@stripes, (stripe) -> stripe.getAllParticles()))
       @operations.add(new WiggleOperation({particles: all_particles, strength: v.length()*0.03}))

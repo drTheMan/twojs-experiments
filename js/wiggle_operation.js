@@ -15,7 +15,7 @@
     WiggleOperation.prototype.defaults = {
       'counter': 0,
       'strength': 1,
-      'speed': 0.4,
+      'speed': 0.2,
       'alive': true,
       'particles': []
     };

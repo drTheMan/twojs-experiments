@@ -86,7 +86,7 @@
 
     TwoApp.prototype._mouseMove = function(event) {
       var all_particles, v;
-      if (this.lastMouseX && this.lastMouseY) {
+      if (this.lastMouseX && this.lastMouseY && this.operations.length < 20) {
         v = new Two.Vector(event.pageX - this.lastMouseX, event.pageY - this.lastMouseY);
         all_particles = _.flatten(_.map(this.stripes, function(stripe) {
           return stripe.getAllParticles();
