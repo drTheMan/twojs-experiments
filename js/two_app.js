@@ -8,32 +8,23 @@
 
     TwoApp.prototype.init = function() {
       this.two = new Two({
-        fullscreen: true
+        fullscreen: true,
+        type: Two.Types.svg
       }).appendTo(document.body);
-      this.initScene();
-      return this.two.bind('update', this.update, this).play();
+      $(window).bind('resize', this._resize);
+      this.stripes = new Stripes({
+        two: this.two
+      });
+      return this.two.play();
     };
 
-    TwoApp.prototype.initScene = function() {
-      this.circle = this.two.makeCircle(-70, 0, 50);
-      this.rect = this.two.makeRectangle(70, 0, 100, 100);
-      this.circle.fill = '#FF8000';
-      this.rect.fill = 'rgba(0, 200, 255, 0.75)';
-      this.group = this.two.makeGroup(this.circle, this.rect);
-      this.group.translation.set(this.two.width / 2, this.two.height / 2);
-      this.group.scale = 0;
-      return this.group.noStroke();
-    };
-
-    TwoApp.prototype.update = function(frameCount) {
-      var t;
-      if (this.group.scale > 0.9999) {
-        this.group.scale = this.group.rotation = 0;
+    TwoApp.prototype._resize = function() {
+      if (!this.two) {
+        return;
       }
-      t = (1 - this.group.scale) * 0.125;
-      this.group.scale += t;
-      this.group.rotation += t * 4 * Math.PI;
-      return this.group.translation.addSelf(new Two.Vector(Math.sin(frameCount * 0.03) * 1, 0));
+      this.two.renderer.setSize($(window).width(), $(window).height());
+      this.two.width = this.two.renderer.width;
+      return this.two.height = this.two.renderer.height;
     };
 
     return TwoApp;
