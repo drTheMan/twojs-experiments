@@ -19,6 +19,13 @@ class @StripeRain
     w = 25
 
     @stripes.add(new Stripe({
+      x: x+w+w+w-10,
+      y: -height,
+      width: w,
+      height: height,
+      color: 'rgba(0, 0, 0, 0.30)'}))
+
+    @stripes.add(new Stripe({
       x: x,
       y: -height,
       width: w,

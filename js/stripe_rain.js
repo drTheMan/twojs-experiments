@@ -39,6 +39,13 @@
       x = Math.random() * this.two.width;
       w = 25;
       this.stripes.add(new Stripe({
+        x: x + w + w + w - 10,
+        y: -height,
+        width: w,
+        height: height,
+        color: 'rgba(0, 0, 0, 0.30)'
+      }));
+      this.stripes.add(new Stripe({
         x: x,
         y: -height,
         width: w,
