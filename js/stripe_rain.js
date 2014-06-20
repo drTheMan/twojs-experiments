@@ -13,7 +13,7 @@
     }
 
     Stripe.prototype.isDead = function() {
-      return this.get('particle').translation.y > this.get('height') * 1.6;
+      return this.get('particle').translation.y > this.get('height') * 2;
     };
 
     Stripe.prototype.update = function() {
@@ -34,21 +34,23 @@
     }
 
     StripeRain.prototype.addOne = function() {
-      var height, w, x;
-      height = this.two.height + Math.random() * 500;
-      x = Math.random() * this.two.width;
+      var pos, size, w;
+      this.minSize || (this.minSize = Math.sqrt(Math.pow(this.two.width, 2), Math.pow(this.two.height, 2)));
+      this.maxPos || (this.maxPos = _.max([this.two.width, this.two.height]));
+      size = this.minSize + Math.random() * 500;
+      pos = (Math.random() - 0.5) * this.maxPos;
       w = 25;
       return this.stripes.add(new Stripe({
-        x: x,
-        y: -height,
+        x: pos,
+        y: -size,
         width: w,
-        height: height,
+        height: size,
         color: '#54EBFA'
       }));
     };
 
     StripeRain.prototype.addSome = function() {
-      if (this.stripes.length < 10) {
+      if (this.stripes.length < 30) {
         this.addOne();
         return this.addOne();
       }
@@ -70,40 +72,43 @@
       });
       this.two.bind('update', this._update, this);
       this.group = this.two.makeGroup();
-      this.group.rotation = this.options.rotation;
+      this.group.translation.set(this.two.width / 2, this.two.height / 2);
+      if (this.options.rotation) {
+        this.group.rotation = this.options.rotation;
+      }
       return this.addOne();
     };
 
     StripeRain.prototype._update = function(frameCount) {
       var _this = this;
-      return this.stripes.each(function(obj) {
-        if (obj.isDead()) {
-          return _this.stripes.remove(obj);
+      return this.stripes.each(function(stripe, col) {
+        if (stripe.isDead()) {
+          return _this.stripes.remove(stripe);
         } else {
-          return obj.update();
+          return stripe.update();
         }
       });
     };
 
     StripeRain.prototype._added = function(obj) {
-      var group, rect;
+      var group, h, rect, w;
       group = new Two.Group();
-      rect = this.two.makeRectangle(obj.get('x') + obj.get('width') + obj.get('width') + obj.get('width') - 10, obj.get('y'), obj.get('width'), obj.get('height'));
-      rect.noStroke();
-      rect.fill = 'rgba(0, 0, 0, 0.30)';
+      w = obj.get('width');
+      h = obj.get('height');
+      rect = this.two.makeRectangle(w * 2.8, 0, w, h);
+      rect.fill = 'rgba(0, 0, 0, 0.3)';
       rect.addTo(group);
-      rect = this.two.makeRectangle(obj.get('x'), obj.get('y'), obj.get('width'), obj.get('height'));
-      rect.noStroke();
+      rect = this.two.makeRectangle(0, 0, w, h);
       rect.fill = '#54EBFA';
       rect.addTo(group);
-      rect = this.two.makeRectangle(obj.get('x') + obj.get('width') - 2, obj.get('y'), obj.get('width'), obj.get('height'));
-      rect.noStroke();
+      rect = this.two.makeRectangle(w - 1, 0, w, h);
       rect.fill = '#FFFFFF';
       rect.addTo(group);
-      rect = this.two.makeRectangle(obj.get('x') + obj.get('width') + obj.get('width') - 2, obj.get('y'), obj.get('width'), obj.get('height'));
-      rect.noStroke();
+      rect = this.two.makeRectangle(w + w - 1, 0, w, h);
       rect.fill = '#FD031D';
       rect.addTo(group);
+      group.translation.addSelf(new Two.Vector(obj.get('x'), obj.get('y')));
+      group.noStroke();
       group.addTo(this.group);
       return obj.set({
         particle: group

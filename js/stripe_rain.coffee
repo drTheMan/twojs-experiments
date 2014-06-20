@@ -1,6 +1,6 @@
 class Stripe extends Backbone.Model
   isDead: ->
-    @get('particle').translation.y > @get('height') * 1.6
+    @get('particle').translation.y > @get('height') * 2
 
   update: ->
     @get('particle').translation.addSelf(new Two.Vector(0, 20))
@@ -14,40 +14,25 @@ class @StripeRain
     @_init()
 
   addOne: ->
-    height = @two.height + Math.random()*500
-    x = Math.random() * @two.width
+    # minimum size is the diagonal of the scene
+    @minSize ||= Math.sqrt(Math.pow(@two.width,2), Math.pow(@two.height,2))
+    @maxPos ||= _.max([@two.width, @two.height])
+
+    # get a nice size for the new stripe
+    size = @minSize + Math.random()*500
+    pos = (Math.random()-0.5) * @maxPos
     w = 25
 
-   #@stripes.add(new Stripe({
-   #  x: x+w+w+w-10,
-   #  y: -height,
-   #  width: w,
-   #  height: height,
-   #  color: 'rgba(0, 0, 0, 0.30)'}))
-
     @stripes.add(new Stripe({
-      x: x,
-      y: -height,
+      x: pos,
+      y: -size,
       width: w,
-      height: height,
+      height: size,
       color: '#54EBFA'}))
 
-    #@stripes.add(new Stripe({
-    #  x: x+w-1,
-    #  y: -height,
-    #  width: w,
-    #  height: height,
-    #  color: '#ffffff'}))
-#
-    #@stripes.add(new Stripe({
-    #  x: x+w+w-2,
-    #  y: -height,
-    #  width: w,
-    #  height: height,
-    #  color: '#FD031D'}))
 
   addSome: ->
-    if @stripes.length < 10
+    if @stripes.length < 30
       @addOne()
       @addOne()
 
@@ -55,48 +40,53 @@ class @StripeRain
     @stripes.map (stripe) -> stripe.get('particle')
 
   _init: ->
+    # our collection of elements in the scene (+hooks to maintain them)
     @stripes = new Backbone.Collection([])
-    @stripes.on('add', @_added, this)
-    @stripes.on('remove', @addSome, this)
-    @stripes.on 'remove', (stripe) => @group.remove stripe.get('particle')
+    @stripes.on('add', @_added, this)     # after a 'record' is created; create the visual elements in the Two scene automatically
+    @stripes.on('remove', @addSome, this) # after a stripes 'dies' add new stripes
+    @stripes.on('remove', (stripe) => @group.remove stripe.get('particle')) # when a stripe 'dies', also remove it's visual elements
+    @two.bind('update', @_update, this) # keep updating the scene
 
-    @two.bind('update', @_update, this)
-
+    # put all visual stripe elements inside one main (centered) group
     @group = @two.makeGroup()
-    @group.rotation = @options.rotation
+    @group.translation.set(@two.width/2, @two.height/2)
+    @group.rotation = @options.rotation if @options.rotation
 
+    # start by adding one stripe
     @addOne();
 
   _update: (frameCount) ->
-    @stripes.each (obj) =>
-      if obj.isDead()
-        @stripes.remove(obj)
+    @stripes.each (stripe,col) =>
+      if stripe.isDead()
+        @stripes.remove stripe
       else
-        obj.update()
+        stripe.update()
 
   _added: (obj) ->
-    group = new Two.Group();
+    group = new Two.Group()
 
-    rect = @two.makeRectangle(obj.get('x')+obj.get('width')+obj.get('width')+obj.get('width')-10, obj.get('y'), obj.get('width'), obj.get('height'));
-    rect.noStroke()
-    rect.fill = 'rgba(0, 0, 0, 0.30)'
+    w = obj.get('width')
+    h = obj.get('height')
+
+    # shadow
+    rect = @two.makeRectangle(w*2.8, 0, w, h)
+    rect.fill = 'rgba(0, 0, 0, 0.3)'
     rect.addTo(group)
-
-    rect = @two.makeRectangle(obj.get('x'), obj.get('y'), obj.get('width'), obj.get('height'));
-    rect.noStroke()
+    # blue
+    rect = @two.makeRectangle(0, 0, w, h)
     rect.fill = '#54EBFA'
     rect.addTo(group)
-
-    rect = @two.makeRectangle(obj.get('x')+obj.get('width')-2, obj.get('y'), obj.get('width'), obj.get('height'));
-    rect.noStroke()
+    # white
+    rect = @two.makeRectangle(w-1, 0, w, h)
     rect.fill = '#FFFFFF'
     rect.addTo(group)
-
-    rect = @two.makeRectangle(obj.get('x')+obj.get('width')+obj.get('width')-2, obj.get('y'), obj.get('width'), obj.get('height'));
-    rect.noStroke()
+    # red
+    rect = @two.makeRectangle(w+w-1, 0, w, h)
     rect.fill = '#FD031D'
     rect.addTo(group)
-
+    # group
+    group.translation.addSelf(new Two.Vector(obj.get('x'), obj.get('y')))
+    group.noStroke()
     group.addTo(@group)
 
     obj.set({particle: group})

@@ -39,9 +39,8 @@
           rotation: -0.3
         })
       ];
-      this.stripes[0].group.translation.set(-800, 0);
-      this.stripes[1].group.translation.set(this.two.width, 200);
-      return this.stripes[2].group.translation.set(800, 0);
+      this.stripes[0].group.translation.addSelf(new Two.Vector(-this.two.width / 2, 0));
+      return this.stripes[2].group.translation.addSelf(new Two.Vector(this.two.width / 2, 0));
     };
 
     TwoApp.prototype._initOperations = function() {

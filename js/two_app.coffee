@@ -17,13 +17,12 @@ class @TwoApp
 
     @stripes = [
       new StripeRain({two: @two, rotation: -0.3})
-      new StripeRain({two: @two, rotation: 0.3 + Math.PI}),
+      new StripeRain({two: @two, rotation: 0.3 + Math.PI})
       new StripeRain({two: @two, rotation: -0.3})
     ]
 
-    @stripes[0].group.translation.set(-800, 0)
-    @stripes[1].group.translation.set(@two.width, 200)
-    @stripes[2].group.translation.set(800,0)
+    @stripes[0].group.translation.addSelf(new Two.Vector(-@two.width/2, 0))
+    @stripes[2].group.translation.addSelf(new Two.Vector(@two.width/2, 0))
 
   _initOperations: ->
     @operations = new Backbone.Collection([])
