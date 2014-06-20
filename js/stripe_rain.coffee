@@ -6,6 +6,7 @@ class Stripe extends Backbone.Model
     @get('particle').translation.addSelf(new Two.Vector(0, 20))
     @set({alive: false}) if @_isDead()
 
+
 class @StripeRain
   constructor: (_opts) ->
     @options = _opts
@@ -33,11 +34,6 @@ class @StripeRain
   addOne: ->
     @stripes.add(new Stripe(@getNewStripeData()))
 
-  addSome: ->
-    if @stripes.length < 30
-      @addOne()
-      @addOne()
-
   getAllParticles: ->
     @stripes.map (stripe) -> stripe.get('particle')
 
@@ -45,7 +41,6 @@ class @StripeRain
     # our collection of elements in the scene (+hooks to maintain them)
     @stripes = new Backbone.Collection([])
     @stripes.on('add', @_added, this)     # after a 'record' is created; create the visual elements in the Two scene automatically
-    @stripes.on('remove', @addSome, this) # after a stripes 'dies' add new stripes
     @stripes.on('remove', (stripe) => @group.remove stripe.get('particle')) # when a stripe 'dies', also remove it's visual elements
     @stripes.on('change:alive', @_onAliveChange, this)
     @two.bind('update', @_update, this) # keep updating the scene
@@ -53,6 +48,7 @@ class @StripeRain
     # put all visual stripe elements inside one main (centered) group
     @group = @two.makeGroup()
     @group.translation.set(@two.width/2, @two.height/2)
+    @group.translation.addSelf(@options.translation) if @options.translation
     @group.rotation = @options.rotation if @options.rotation
 
     # start by adding one stripe
@@ -61,6 +57,7 @@ class @StripeRain
   _update: (frameCount) ->
     @stripes.each (stripe,col) -> stripe.update()
 
+  # this method creates the visual two elements (rectangles) for each stripe Model
   _added: (obj) ->
     group = new Two.Group()
 
@@ -98,6 +95,6 @@ class @StripeRain
     stripe.get('particle').translation.set(stripe.get('x'), stripe.get('y')) if value == true
 
     # stripe died; add another stripe if limit hasn't been reached yet
-    @addSome() if value == false
+    @addOne() if @stripes.length < 30 if value == false
 
     

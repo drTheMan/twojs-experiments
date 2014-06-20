@@ -69,13 +69,6 @@
       return this.stripes.add(new Stripe(this.getNewStripeData()));
     };
 
-    StripeRain.prototype.addSome = function() {
-      if (this.stripes.length < 30) {
-        this.addOne();
-        return this.addOne();
-      }
-    };
-
     StripeRain.prototype.getAllParticles = function() {
       return this.stripes.map(function(stripe) {
         return stripe.get('particle');
@@ -86,7 +79,6 @@
       var _this = this;
       this.stripes = new Backbone.Collection([]);
       this.stripes.on('add', this._added, this);
-      this.stripes.on('remove', this.addSome, this);
       this.stripes.on('remove', function(stripe) {
         return _this.group.remove(stripe.get('particle'));
       });
@@ -94,6 +86,9 @@
       this.two.bind('update', this._update, this);
       this.group = this.two.makeGroup();
       this.group.translation.set(this.two.width / 2, this.two.height / 2);
+      if (this.options.translation) {
+        this.group.translation.addSelf(this.options.translation);
+      }
       if (this.options.rotation) {
         this.group.rotation = this.options.rotation;
       }
@@ -140,8 +135,8 @@
       if (value === true) {
         stripe.get('particle').translation.set(stripe.get('x'), stripe.get('y'));
       }
-      if (value === false) {
-        return this.addSome();
+      if (value === false ? this.stripes.length < 30 : void 0) {
+        return this.addOne();
       }
     };
 

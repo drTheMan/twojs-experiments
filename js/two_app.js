@@ -27,20 +27,17 @@
       bg.fill = '#000000';
       bg.noStroke();
       this.two.add(bg);
-      this.stripes = [
+      return this.stripes = [
         new StripeRain({
           two: this.two,
+          translation: new Two.Vector(-this.two.width / 2, 0),
           rotation: -0.3
         }), new StripeRain({
           two: this.two,
+          translation: new Two.Vector(this.two.width / 2, 0),
           rotation: 0.3 + Math.PI
-        }), new StripeRain({
-          two: this.two,
-          rotation: -0.3
         })
       ];
-      this.stripes[0].group.translation.addSelf(new Two.Vector(-this.two.width / 2, 0));
-      return this.stripes[2].group.translation.addSelf(new Two.Vector(this.two.width / 2, 0));
     };
 
     TwoApp.prototype._initOperations = function() {
