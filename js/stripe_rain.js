@@ -25,6 +25,22 @@
       }
     };
 
+    Stripe.prototype.randomize = function() {
+      var key, poly;
+      if (!this.get('particle')) {
+        return;
+      }
+      if (key = _.last(Object.keys(this.get('particle').children))) {
+        if (poly = this.get('particle').children[key]) {
+          if (Math.random() > 0.5) {
+            return poly.opacity = 0;
+          } else {
+            return poly.opacity = 1;
+          }
+        }
+      }
+    };
+
     return Stripe;
 
   })(Backbone.Model);
@@ -121,9 +137,10 @@
       group.translation.addSelf(new Two.Vector(obj.get('x'), obj.get('y')));
       group.noStroke();
       group.addTo(this.group);
-      return obj.set({
+      obj.set({
         particle: group
       });
+      return obj.randomize();
     };
 
     StripeRain.prototype._onAliveChange = function(stripe, value, data) {
@@ -134,6 +151,7 @@
       }
       if (value === true) {
         stripe.get('particle').translation.set(stripe.get('x'), stripe.get('y'));
+        stripe.randomize();
       }
       if (value === false ? this.stripes.length < 50 : void 0) {
         return this.addOne();

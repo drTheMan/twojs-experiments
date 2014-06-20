@@ -6,6 +6,15 @@ class Stripe extends Backbone.Model
     @get('particle').translation.addSelf(new Two.Vector(0, 20))
     @set({alive: false}) if @_isDead()
 
+  randomize: ->
+    return if !@get('particle')
+
+    if key = _.last(Object.keys(@get('particle').children)) 
+      if poly = @get('particle').children[key]
+        if Math.random() > 0.5
+          poly.opacity = 0
+        else
+          poly.opacity = 1
 
 class @StripeRain
   constructor: (_opts) ->
@@ -87,13 +96,16 @@ class @StripeRain
     group.addTo(@group)
 
     obj.set({particle: group})
+    obj.randomize()
 
   _onAliveChange: (stripe, value, data) ->
     # a stripe died; resurrect
     stripe.set $.extend(@getNewStripeData(), {alive: true}) if value == false
 
     # a stripe revived; move it's visual elements into position
-    stripe.get('particle').translation.set(stripe.get('x'), stripe.get('y')) if value == true
+    if value == true
+      stripe.get('particle').translation.set(stripe.get('x'), stripe.get('y'))
+      stripe.randomize()
 
     # stripe died; add another stripe if limit hasn't been reached yet
     @addOne() if @stripes.length < 50 if value == false
