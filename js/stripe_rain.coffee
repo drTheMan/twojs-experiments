@@ -1,10 +1,10 @@
 class Stripe extends Backbone.Model
-  isDead: ->
+  _isDead: ->
     @get('particle').translation.y > @get('height') * 2
 
   update: ->
     @get('particle').translation.addSelf(new Two.Vector(0, 20))
-
+    @set({alive: false}) if @_isDead()
 
 class @StripeRain
   constructor: (_opts) ->
@@ -13,23 +13,25 @@ class @StripeRain
     @options.rotation ||= 0
     @_init()
 
-  addOne: ->
+  getPos: ->
+    @maxPos ||= _.max([@two.width, @two.height])
+    pos = (Math.random()-0.5) * @maxPos
+
+  getSize: -> 
     # minimum size is the diagonal of the scene
     @minSize ||= Math.sqrt(Math.pow(@two.width,2), Math.pow(@two.height,2))
-    @maxPos ||= _.max([@two.width, @two.height])
-
-    # get a nice size for the new stripe
+    # get a nice size for a new stripe
     size = @minSize + Math.random()*500
-    pos = (Math.random()-0.5) * @maxPos
-    w = 25
 
-    @stripes.add(new Stripe({
-      x: pos,
-      y: -size,
-      width: w,
-      height: size,
-      color: '#54EBFA'}))
+  getFatness: ->
+    25
 
+  getNewStripeData: ->
+    size = @getSize()
+    { x: @getPos(), y: -size, width: @getFatness(), height: size }
+
+  addOne: ->
+    @stripes.add(new Stripe(@getNewStripeData()))
 
   addSome: ->
     if @stripes.length < 30
@@ -45,6 +47,7 @@ class @StripeRain
     @stripes.on('add', @_added, this)     # after a 'record' is created; create the visual elements in the Two scene automatically
     @stripes.on('remove', @addSome, this) # after a stripes 'dies' add new stripes
     @stripes.on('remove', (stripe) => @group.remove stripe.get('particle')) # when a stripe 'dies', also remove it's visual elements
+    @stripes.on('change:alive', @_onAliveChange, this)
     @two.bind('update', @_update, this) # keep updating the scene
 
     # put all visual stripe elements inside one main (centered) group
@@ -56,11 +59,7 @@ class @StripeRain
     @addOne();
 
   _update: (frameCount) ->
-    @stripes.each (stripe,col) =>
-      if stripe.isDead()
-        @stripes.remove stripe
-      else
-        stripe.update()
+    @stripes.each (stripe,col) -> stripe.update()
 
   _added: (obj) ->
     group = new Two.Group()
@@ -90,5 +89,15 @@ class @StripeRain
     group.addTo(@group)
 
     obj.set({particle: group})
+
+  _onAliveChange: (stripe, value, data) ->
+    # a stripe died; resurrect
+    stripe.set $.extend(@getNewStripeData(), {alive: true}) if value == false
+
+    # a stripe revived; move it's visual elements into position
+    stripe.get('particle').translation.set(stripe.get('x'), stripe.get('y')) if value == true
+
+    # stripe died; add another stripe if limit hasn't been reached yet
+    @addSome() if value == false
 
     

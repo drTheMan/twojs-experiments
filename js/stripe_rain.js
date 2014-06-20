@@ -12,12 +12,17 @@
       return _ref;
     }
 
-    Stripe.prototype.isDead = function() {
+    Stripe.prototype._isDead = function() {
       return this.get('particle').translation.y > this.get('height') * 2;
     };
 
     Stripe.prototype.update = function() {
-      return this.get('particle').translation.addSelf(new Two.Vector(0, 20));
+      this.get('particle').translation.addSelf(new Two.Vector(0, 20));
+      if (this._isDead()) {
+        return this.set({
+          alive: false
+        });
+      }
     };
 
     return Stripe;
@@ -33,20 +38,35 @@
       this._init();
     }
 
-    StripeRain.prototype.addOne = function() {
-      var pos, size, w;
-      this.minSize || (this.minSize = Math.sqrt(Math.pow(this.two.width, 2), Math.pow(this.two.height, 2)));
+    StripeRain.prototype.getPos = function() {
+      var pos;
       this.maxPos || (this.maxPos = _.max([this.two.width, this.two.height]));
-      size = this.minSize + Math.random() * 500;
-      pos = (Math.random() - 0.5) * this.maxPos;
-      w = 25;
-      return this.stripes.add(new Stripe({
-        x: pos,
+      return pos = (Math.random() - 0.5) * this.maxPos;
+    };
+
+    StripeRain.prototype.getSize = function() {
+      var size;
+      this.minSize || (this.minSize = Math.sqrt(Math.pow(this.two.width, 2), Math.pow(this.two.height, 2)));
+      return size = this.minSize + Math.random() * 500;
+    };
+
+    StripeRain.prototype.getFatness = function() {
+      return 25;
+    };
+
+    StripeRain.prototype.getNewStripeData = function() {
+      var size;
+      size = this.getSize();
+      return {
+        x: this.getPos(),
         y: -size,
-        width: w,
-        height: size,
-        color: '#54EBFA'
-      }));
+        width: this.getFatness(),
+        height: size
+      };
+    };
+
+    StripeRain.prototype.addOne = function() {
+      return this.stripes.add(new Stripe(this.getNewStripeData()));
     };
 
     StripeRain.prototype.addSome = function() {
@@ -70,6 +90,7 @@
       this.stripes.on('remove', function(stripe) {
         return _this.group.remove(stripe.get('particle'));
       });
+      this.stripes.on('change:alive', this._onAliveChange, this);
       this.two.bind('update', this._update, this);
       this.group = this.two.makeGroup();
       this.group.translation.set(this.two.width / 2, this.two.height / 2);
@@ -80,13 +101,8 @@
     };
 
     StripeRain.prototype._update = function(frameCount) {
-      var _this = this;
       return this.stripes.each(function(stripe, col) {
-        if (stripe.isDead()) {
-          return _this.stripes.remove(stripe);
-        } else {
-          return stripe.update();
-        }
+        return stripe.update();
       });
     };
 
@@ -113,6 +129,20 @@
       return obj.set({
         particle: group
       });
+    };
+
+    StripeRain.prototype._onAliveChange = function(stripe, value, data) {
+      if (value === false) {
+        stripe.set($.extend(this.getNewStripeData(), {
+          alive: true
+        }));
+      }
+      if (value === true) {
+        stripe.get('particle').translation.set(stripe.get('x'), stripe.get('y'));
+      }
+      if (value === false) {
+        return this.addSome();
+      }
     };
 
     return StripeRain;
