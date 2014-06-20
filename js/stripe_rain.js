@@ -51,7 +51,7 @@
     };
 
     StripeRain.prototype.getFatness = function() {
-      return 25;
+      return this.options.fatness || 25;
     };
 
     StripeRain.prototype.getNewStripeData = function() {
@@ -106,7 +106,7 @@
       group = new Two.Group();
       w = obj.get('width');
       h = obj.get('height');
-      rect = this.two.makeRectangle(w * 2.8, 0, w, h);
+      rect = this.two.makeRectangle(w + (this.options.shadowOffset || 0), 0, w * 3, h);
       rect.fill = 'rgba(0, 0, 0, 0.3)';
       rect.addTo(group);
       rect = this.two.makeRectangle(0, 0, w, h);

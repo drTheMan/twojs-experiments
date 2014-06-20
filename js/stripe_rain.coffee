@@ -25,7 +25,7 @@ class @StripeRain
     size = @minSize + Math.random()*500
 
   getFatness: ->
-    25
+    @options.fatness || 25
 
   getNewStripeData: ->
     size = @getSize()
@@ -65,7 +65,7 @@ class @StripeRain
     h = obj.get('height')
 
     # shadow
-    rect = @two.makeRectangle(w*2.8, 0, w, h)
+    rect = @two.makeRectangle(w+(@options.shadowOffset || 0), 0, w*3, h)
     rect.fill = 'rgba(0, 0, 0, 0.3)'
     rect.addTo(group)
     # blue
@@ -80,6 +80,7 @@ class @StripeRain
     rect = @two.makeRectangle(w+w-1, 0, w, h)
     rect.fill = '#FD031D'
     rect.addTo(group)
+
     # group
     group.translation.addSelf(new Two.Vector(obj.get('x'), obj.get('y')))
     group.noStroke()
