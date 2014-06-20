@@ -10,15 +10,33 @@ class @TwoApp
     @_initOperations()
 
   _initScene: ->
+    @_initBG()
+    @_initStripes()
+    @_initLetterbox()
+
+  _initBG: ->
     bg = @two.makeRectangle(@two.width/2,@two.height/2, @two.width, @two.height)
     bg.fill = '#000000'
     bg.noStroke()
     @two.add(bg)
 
+  _initStripes: ->
     @stripes = [
       new StripeRain({two: @two, translation: new Two.Vector(-@two.width/2, 0), rotation: -0.3})
       new StripeRain({two: @two, translation: new Two.Vector(@two.width/2, 0), rotation: 0.3 + Math.PI})
     ]
+
+  _initLetterbox: ->
+    fatness = @two.height * 0.1
+    bar = @two.makeRectangle(@two.width/2, fatness/2, @two.width, fatness)
+    bar.fill = '#000000'
+    bar.noStroke()
+    @two.add(bar)
+
+    bar = @two.makeRectangle(@two.width/2, @two.height-fatness/2, @two.width, fatness)
+    bar.fill = '#000000'
+    bar.noStroke()
+    @two.add(bar)
 
   _initOperations: ->
     @operations = new Backbone.Collection([])

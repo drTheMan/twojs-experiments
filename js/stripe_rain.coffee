@@ -95,6 +95,6 @@ class @StripeRain
     stripe.get('particle').translation.set(stripe.get('x'), stripe.get('y')) if value == true
 
     # stripe died; add another stripe if limit hasn't been reached yet
-    @addOne() if @stripes.length < 30 if value == false
+    @addOne() if @stripes.length < 50 if value == false
 
     

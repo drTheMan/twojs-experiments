@@ -135,7 +135,7 @@
       if (value === true) {
         stripe.get('particle').translation.set(stripe.get('x'), stripe.get('y'));
       }
-      if (value === false ? this.stripes.length < 30 : void 0) {
+      if (value === false ? this.stripes.length < 50 : void 0) {
         return this.addOne();
       }
     };

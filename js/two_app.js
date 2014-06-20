@@ -22,11 +22,20 @@
     };
 
     TwoApp.prototype._initScene = function() {
+      this._initBG();
+      this._initStripes();
+      return this._initLetterbox();
+    };
+
+    TwoApp.prototype._initBG = function() {
       var bg;
       bg = this.two.makeRectangle(this.two.width / 2, this.two.height / 2, this.two.width, this.two.height);
       bg.fill = '#000000';
       bg.noStroke();
-      this.two.add(bg);
+      return this.two.add(bg);
+    };
+
+    TwoApp.prototype._initStripes = function() {
       return this.stripes = [
         new StripeRain({
           two: this.two,
@@ -38,6 +47,19 @@
           rotation: 0.3 + Math.PI
         })
       ];
+    };
+
+    TwoApp.prototype._initLetterbox = function() {
+      var bar, fatness;
+      fatness = this.two.height * 0.1;
+      bar = this.two.makeRectangle(this.two.width / 2, fatness / 2, this.two.width, fatness);
+      bar.fill = '#000000';
+      bar.noStroke();
+      this.two.add(bar);
+      bar = this.two.makeRectangle(this.two.width / 2, this.two.height - fatness / 2, this.two.width, fatness);
+      bar.fill = '#000000';
+      bar.noStroke();
+      return this.two.add(bar);
     };
 
     TwoApp.prototype._initOperations = function() {
