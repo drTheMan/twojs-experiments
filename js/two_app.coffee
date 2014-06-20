@@ -4,7 +4,7 @@ class @TwoApp
     @init()
 
   init: ->
-    @two = new Two({autostart: true, fullscreen: true, type: Two.Types.webgl}).appendTo(document.body)
+    @two = new Two({autostart: true, fullscreen: true, type: Two.Types.svg}).appendTo(document.body)
     $(window).on('resize', @_resize).on('keydown', @_keyDown).mousemove(@_mouseMove)
     @_initScene()
     @_initOperations()

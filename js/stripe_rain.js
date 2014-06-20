@@ -38,38 +38,17 @@
       height = this.two.height + Math.random() * 500;
       x = Math.random() * this.two.width;
       w = 25;
-      this.stripes.add(new Stripe({
-        x: x + w + w + w - 10,
-        y: -height,
-        width: w,
-        height: height,
-        color: 'rgba(0, 0, 0, 0.30)'
-      }));
-      this.stripes.add(new Stripe({
+      return this.stripes.add(new Stripe({
         x: x,
         y: -height,
         width: w,
         height: height,
         color: '#54EBFA'
       }));
-      this.stripes.add(new Stripe({
-        x: x + w - 1,
-        y: -height,
-        width: w,
-        height: height,
-        color: '#ffffff'
-      }));
-      return this.stripes.add(new Stripe({
-        x: x + w + w - 2,
-        y: -height,
-        width: w,
-        height: height,
-        color: '#FD031D'
-      }));
     };
 
     StripeRain.prototype.addSome = function() {
-      if (this.stripes.length < 50) {
+      if (this.stripes.length < 10) {
         this.addOne();
         return this.addOne();
       }
@@ -107,13 +86,27 @@
     };
 
     StripeRain.prototype._added = function(obj) {
-      var rect;
+      var group, rect;
+      group = new Two.Group();
+      rect = this.two.makeRectangle(obj.get('x') + obj.get('width') + obj.get('width') + obj.get('width') - 10, obj.get('y'), obj.get('width'), obj.get('height'));
+      rect.noStroke();
+      rect.fill = 'rgba(0, 0, 0, 0.30)';
+      rect.addTo(group);
       rect = this.two.makeRectangle(obj.get('x'), obj.get('y'), obj.get('width'), obj.get('height'));
       rect.noStroke();
-      rect.fill = obj.get('color') || '#000000';
-      rect.addTo(this.group);
+      rect.fill = '#54EBFA';
+      rect.addTo(group);
+      rect = this.two.makeRectangle(obj.get('x') + obj.get('width') - 2, obj.get('y'), obj.get('width'), obj.get('height'));
+      rect.noStroke();
+      rect.fill = '#FFFFFF';
+      rect.addTo(group);
+      rect = this.two.makeRectangle(obj.get('x') + obj.get('width') + obj.get('width') - 2, obj.get('y'), obj.get('width'), obj.get('height'));
+      rect.noStroke();
+      rect.fill = '#FD031D';
+      rect.addTo(group);
+      group.addTo(this.group);
       return obj.set({
-        particle: rect
+        particle: group
       });
     };
 

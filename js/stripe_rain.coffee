@@ -18,12 +18,12 @@ class @StripeRain
     x = Math.random() * @two.width
     w = 25
 
-    @stripes.add(new Stripe({
-      x: x+w+w+w-10,
-      y: -height,
-      width: w,
-      height: height,
-      color: 'rgba(0, 0, 0, 0.30)'}))
+   #@stripes.add(new Stripe({
+   #  x: x+w+w+w-10,
+   #  y: -height,
+   #  width: w,
+   #  height: height,
+   #  color: 'rgba(0, 0, 0, 0.30)'}))
 
     @stripes.add(new Stripe({
       x: x,
@@ -32,23 +32,22 @@ class @StripeRain
       height: height,
       color: '#54EBFA'}))
 
-    @stripes.add(new Stripe({
-      x: x+w-1,
-      y: -height,
-      width: w,
-      height: height,
-      color: '#ffffff'}))
-
-    @stripes.add(new Stripe({
-      x: x+w+w-2,
-      y: -height,
-      width: w,
-      height: height,
-      color: '#FD031D'}))
-
+    #@stripes.add(new Stripe({
+    #  x: x+w-1,
+    #  y: -height,
+    #  width: w,
+    #  height: height,
+    #  color: '#ffffff'}))
+#
+    #@stripes.add(new Stripe({
+    #  x: x+w+w-2,
+    #  y: -height,
+    #  width: w,
+    #  height: height,
+    #  color: '#FD031D'}))
 
   addSome: ->
-    if @stripes.length < 50
+    if @stripes.length < 10
       @addOne()
       @addOne()
 
@@ -76,10 +75,30 @@ class @StripeRain
         obj.update()
 
   _added: (obj) ->
+    group = new Two.Group();
+
+    rect = @two.makeRectangle(obj.get('x')+obj.get('width')+obj.get('width')+obj.get('width')-10, obj.get('y'), obj.get('width'), obj.get('height'));
+    rect.noStroke()
+    rect.fill = 'rgba(0, 0, 0, 0.30)'
+    rect.addTo(group)
+
     rect = @two.makeRectangle(obj.get('x'), obj.get('y'), obj.get('width'), obj.get('height'));
     rect.noStroke()
-    rect.fill = obj.get('color') || '#000000'
-    rect.addTo(@group)
-    obj.set({particle: rect})
+    rect.fill = '#54EBFA'
+    rect.addTo(group)
+
+    rect = @two.makeRectangle(obj.get('x')+obj.get('width')-2, obj.get('y'), obj.get('width'), obj.get('height'));
+    rect.noStroke()
+    rect.fill = '#FFFFFF'
+    rect.addTo(group)
+
+    rect = @two.makeRectangle(obj.get('x')+obj.get('width')+obj.get('width')-2, obj.get('y'), obj.get('width'), obj.get('height'));
+    rect.noStroke()
+    rect.fill = '#FD031D'
+    rect.addTo(group)
+
+    group.addTo(@group)
+
+    obj.set({particle: group})
 
     

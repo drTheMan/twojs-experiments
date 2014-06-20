@@ -14,7 +14,7 @@
       this.two = new Two({
         autostart: true,
         fullscreen: true,
-        type: Two.Types.webgl
+        type: Two.Types.svg
       }).appendTo(document.body);
       $(window).on('resize', this._resize).on('keydown', this._keyDown).mousemove(this._mouseMove);
       this._initScene();
