@@ -12,6 +12,7 @@ class @TwoApp
   _initScene: ->
     @_initBG()
     @_initStripes()
+    @_initCircles()
     @_initLetterbox()
 
   _initBG: ->
@@ -25,6 +26,27 @@ class @TwoApp
       new StripeRain({two: @two, translation: new Two.Vector(-@two.width/2, 0), rotation: -0.3, shadowOffset: 22})
       new StripeRain({two: @two, translation: new Two.Vector(@two.width/2, 0), rotation: 0.3 + Math.PI, shadowOffset: -22})
     ]
+
+  _initCircles: ->
+    min_dimension = _.min([@two.width, @two.height])
+    amount = 25
+    last = amount - 1
+    radius = min_dimension * 0.33
+    distance = @two.height / 6
+
+    points = _.map _.range(amount), (i) ->
+      pct = i / last
+      theta = pct * Math.PI + Math.PI * 0.25
+      x = radius * Math.cos(theta)
+      y = radius * Math.sin(theta)
+      return new Two.Anchor(x, y)
+
+    circle = new Two.Polygon(points, false, true)
+    circle.fill = '#BF00A5'
+    circle.noStroke()
+    circle.opacity = 0.8
+    circle.translation.set(@two.width/2, @two.height/2)
+    @two.add(circle)
 
   _initLetterbox: ->
     fatness = @two.height * 0.1

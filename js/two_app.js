@@ -24,6 +24,7 @@
     TwoApp.prototype._initScene = function() {
       this._initBG();
       this._initStripes();
+      this._initCircles();
       return this._initLetterbox();
     };
 
@@ -49,6 +50,29 @@
           shadowOffset: -22
         })
       ];
+    };
+
+    TwoApp.prototype._initCircles = function() {
+      var amount, circle, distance, last, min_dimension, points, radius;
+      min_dimension = _.min([this.two.width, this.two.height]);
+      amount = 25;
+      last = amount - 1;
+      radius = min_dimension * 0.33;
+      distance = this.two.height / 6;
+      points = _.map(_.range(amount), function(i) {
+        var pct, theta, x, y;
+        pct = i / last;
+        theta = pct * Math.PI + Math.PI * 0.25;
+        x = radius * Math.cos(theta);
+        y = radius * Math.sin(theta);
+        return new Two.Anchor(x, y);
+      });
+      circle = new Two.Polygon(points, false, true);
+      circle.fill = '#BF00A5';
+      circle.noStroke();
+      circle.opacity = 0.8;
+      circle.translation.set(this.two.width / 2, this.two.height / 2);
+      return this.two.add(circle);
     };
 
     TwoApp.prototype._initLetterbox = function() {
