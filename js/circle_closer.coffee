@@ -3,11 +3,6 @@ class @CircleCloser
     @options = _opts
     @two = @options.two
     @_init()
-    @open @options.open || @_closerWidth()
-
-  open: (amount) ->
-    @polygon1.translation.set(0, amount/2)
-    @polygon2.translation.set(0, -amount/2)
 
   _radius: ->
     @options.radius || _.min([@two.width, @two.height])/2
@@ -60,4 +55,55 @@ class @CircleCloser
     polygon = new Two.Polygon(points, false, false)
     polygon.rotation = rotation
     polygon.addTo(@_group())
+
+
+class @CircleCloserOperations
+  constructor: (opts) ->
+    @options = opts
+
+  target: ->
+    @options.target || @options.circle_closer
+
+  open: (amount) ->
+    amount = @target()._closerWidth() if amount == undefined
+    @target().polygon1.translation.set(0, amount/2)
+    @target().polygon2.translation.set(0, -amount/2)
+
+  shutter: (opts) ->
+    @target().group.rotation = Math.random()*Math.PI*2
+
+    new TWEEN.Tween( @target().group )
+      .to({rotation: @target().group.rotation + Math.random()*Math.PI*2}, 750)
+      .easing( TWEEN.Easing.Exponential.InOut )
+      .start()
+      .onComplete =>
+        @target().group.rotation = Math.random()*Math.PI*2
+        new TWEEN.Tween( @target().group )
+          .to({rotation: @target().group.rotation + Math.random()*Math.PI*2}, 750)
+          .easing( TWEEN.Easing.Exponential.InOut )
+          .delay(500)
+          .start()
+      .onStart =>
+        new TWEEN.Tween( @target().polygon1.translation )
+          .to( { y: -1 }, 750)
+          # .easing( TWEEN.Easing.Bounce.InOut )
+          .easing( TWEEN.Easing.Exponential.InOut )
+          .start()
+          .onComplete =>
+            new TWEEN.Tween( @target().polygon1.translation )
+              .to( { y: 2000 }, 750)
+              .easing( TWEEN.Easing.Exponential.InOut )
+              .delay(500)
+              .start()
+
+        new TWEEN.Tween( @target().polygon2.translation )
+          .to( { y: 1 }, 750)
+          .easing( TWEEN.Easing.Exponential.InOut )
+          .start()
+          .onComplete =>
+            new TWEEN.Tween( @target().polygon2.translation )
+              .to( { y: -2000 }, 750)
+              .easing( TWEEN.Easing.Exponential.InOut )
+              .delay(500)
+              .start()
 

@@ -58,11 +58,15 @@
     };
 
     TwoApp.prototype._initCircles = function() {
-      return this.circle_closer = new CircleCloser({
+      this.circle_closer = new CircleCloser({
         two: this.two,
         color: '#FFFF00',
         radius: 200
       });
+      this.circle_closer_operations = new CircleCloserOperations({
+        target: this.circle_closer
+      });
+      return this.circle_closer_operations.open();
     };
 
     TwoApp.prototype._initLetterbox = function() {
@@ -101,8 +105,7 @@
     };
 
     TwoApp.prototype._keyDown = function(e) {
-      var _ref,
-        _this = this;
+      var _ref;
       if (e.metaKey || e.ctrlKey) {
         return;
       }
@@ -118,30 +121,7 @@
         }
       }
       if (e.keyCode === 67 && this.circle_closer) {
-        this.circle_closer.group.rotation = Math.random() * Math.PI * 2;
-        return new TWEEN.Tween(this.circle_closer.group).to({
-          rotation: this.circle_closer.group.rotation + Math.random() * Math.PI * 2
-        }, 750).easing(TWEEN.Easing.Exponential.InOut).start().onComplete(function() {
-          _this.circle_closer.group.rotation = Math.random() * Math.PI * 2;
-          return new TWEEN.Tween(_this.circle_closer.group).to({
-            rotation: _this.circle_closer.group.rotation + Math.random() * Math.PI * 2
-          }, 750).easing(TWEEN.Easing.Exponential.InOut).delay(500).start();
-        }).onStart(function() {
-          new TWEEN.Tween(_this.circle_closer.polygon1.translation).to({
-            y: -1
-          }, 750).easing(TWEEN.Easing.Exponential.InOut).start().onComplete(function() {
-            return new TWEEN.Tween(_this.circle_closer.polygon1.translation).to({
-              y: 2000
-            }, 750).easing(TWEEN.Easing.Exponential.InOut).delay(500).start();
-          });
-          return new TWEEN.Tween(_this.circle_closer.polygon2.translation).to({
-            y: 1
-          }, 750).easing(TWEEN.Easing.Exponential.InOut).start().onComplete(function() {
-            return new TWEEN.Tween(_this.circle_closer.polygon2.translation).to({
-              y: -2000
-            }, 750).easing(TWEEN.Easing.Exponential.InOut).delay(500).start();
-          });
-        });
+        return this.circle_closer_operations.shutter();
       }
     };
 

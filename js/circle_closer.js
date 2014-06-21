@@ -5,13 +5,7 @@
       this.options = _opts;
       this.two = this.options.two;
       this._init();
-      this.open(this.options.open || this._closerWidth());
     }
-
-    CircleCloser.prototype.open = function(amount) {
-      this.polygon1.translation.set(0, amount / 2);
-      return this.polygon2.translation.set(0, -amount / 2);
-    };
 
     CircleCloser.prototype._radius = function() {
       return this.options.radius || _.min([this.two.width, this.two.height]) / 2;
@@ -73,6 +67,55 @@
     };
 
     return CircleCloser;
+
+  })();
+
+  this.CircleCloserOperations = (function() {
+    function CircleCloserOperations(opts) {
+      this.options = opts;
+    }
+
+    CircleCloserOperations.prototype.target = function() {
+      return this.options.target || this.options.circle_closer;
+    };
+
+    CircleCloserOperations.prototype.open = function(amount) {
+      if (amount === void 0) {
+        amount = this.target()._closerWidth();
+      }
+      this.target().polygon1.translation.set(0, amount / 2);
+      return this.target().polygon2.translation.set(0, -amount / 2);
+    };
+
+    CircleCloserOperations.prototype.shutter = function(opts) {
+      var _this = this;
+      this.target().group.rotation = Math.random() * Math.PI * 2;
+      return new TWEEN.Tween(this.target().group).to({
+        rotation: this.target().group.rotation + Math.random() * Math.PI * 2
+      }, 750).easing(TWEEN.Easing.Exponential.InOut).start().onComplete(function() {
+        _this.target().group.rotation = Math.random() * Math.PI * 2;
+        return new TWEEN.Tween(_this.target().group).to({
+          rotation: _this.target().group.rotation + Math.random() * Math.PI * 2
+        }, 750).easing(TWEEN.Easing.Exponential.InOut).delay(500).start();
+      }).onStart(function() {
+        new TWEEN.Tween(_this.target().polygon1.translation).to({
+          y: -1
+        }, 750).easing(TWEEN.Easing.Exponential.InOut).start().onComplete(function() {
+          return new TWEEN.Tween(_this.target().polygon1.translation).to({
+            y: 2000
+          }, 750).easing(TWEEN.Easing.Exponential.InOut).delay(500).start();
+        });
+        return new TWEEN.Tween(_this.target().polygon2.translation).to({
+          y: 1
+        }, 750).easing(TWEEN.Easing.Exponential.InOut).start().onComplete(function() {
+          return new TWEEN.Tween(_this.target().polygon2.translation).to({
+            y: -2000
+          }, 750).easing(TWEEN.Easing.Exponential.InOut).delay(500).start();
+        });
+      });
+    };
+
+    return CircleCloserOperations;
 
   })();
 

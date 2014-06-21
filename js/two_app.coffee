@@ -30,6 +30,8 @@ class @TwoApp
 
   _initCircles: ->
     @circle_closer = new CircleCloser({two: @two, color: '#FFFF00', radius: 200})
+    @circle_closer_operations = new CircleCloserOperations({target: @circle_closer})
+    @circle_closer_operations.open()
 
   _initLetterbox: ->
     fatness = @two.height * 0.1
@@ -72,41 +74,7 @@ class @TwoApp
         @two.pause()
 
     if e.keyCode == 67 && @circle_closer # 'c'
-      @circle_closer.group.rotation = Math.random()*Math.PI*2
-      new TWEEN.Tween( @circle_closer.group )
-        .to({rotation: @circle_closer.group.rotation + Math.random()*Math.PI*2}, 750)
-        .easing( TWEEN.Easing.Exponential.InOut )
-        .start()
-        .onComplete =>
-          @circle_closer.group.rotation = Math.random()*Math.PI*2
-          new TWEEN.Tween( @circle_closer.group )
-            .to({rotation: @circle_closer.group.rotation + Math.random()*Math.PI*2}, 750)
-            .easing( TWEEN.Easing.Exponential.InOut )
-            .delay(500)
-            .start()
-        .onStart =>
-          new TWEEN.Tween( @circle_closer.polygon1.translation )
-            .to( { y: -1 }, 750)
-            # .easing( TWEEN.Easing.Bounce.InOut )
-            .easing( TWEEN.Easing.Exponential.InOut )
-            .start()
-            .onComplete =>
-              new TWEEN.Tween( @circle_closer.polygon1.translation )
-                .to( { y: 2000 }, 750)
-                .easing( TWEEN.Easing.Exponential.InOut )
-                .delay(500)
-                .start()
-
-          new TWEEN.Tween( @circle_closer.polygon2.translation )
-            .to( { y: 1 }, 750)
-            .easing( TWEEN.Easing.Exponential.InOut )
-            .start()
-            .onComplete =>
-              new TWEEN.Tween( @circle_closer.polygon2.translation )
-                .to( { y: -2000 }, 750)
-                .easing( TWEEN.Easing.Exponential.InOut )
-                .delay(500)
-                .start()
+      @circle_closer_operations.shutter()
 
 
   _mouseMove: (event) =>
