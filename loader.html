@@ -1,0 +1,197 @@
+
+
+<!doctype html>
+<html>
+  <head>
+    <title>Flickr Loading Screen</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="user-scalable=no">
+    <meta name="description" content="A tool for making a better Flickr loading screen">
+    <meta name="keywords" content="Two.js,Flickr,Jonathan Bobrow,JavaScript">
+    <meta name="author" content="Jonathan Bobrow">
+    <link rel="shortcut icon" type="image/gif" href="../images/favicon.gif">
+    <script src="js/jquery.js"></script>
+    <script src="js/underscore-1.6.0-dev.js"></script>
+    <script src="js/backbone-1.1.2-dev.js"></script>
+    <script src="js/two.js"></script>
+    <script src="js/dat.gui.js"></script>
+  </head>
+  <body>
+    <div id="about">
+      <img src="img/loading_sm.png"/>
+    </div>
+    <div class="scripts">
+      <script>
+        $(function() {
+
+          var increment = Math.PI / 256;
+          var TWO_PI = Math.PI * 2;
+          var numCouples = 40;
+          var prevFrameCount = 0;
+          var theta = 0;
+
+          var two = new Two({
+            fullscreen: true
+          }).appendTo(document.body);
+
+          var background = two.makeGroup();
+          var foreground = two.makeGroup();
+
+          var settings = new Settings();
+
+          function Settings(){
+            this.speed = 7;
+            this.twist = 50;
+            this.color_1 = '#f02075';
+            this.color_2 = '#1368e1';
+            this.opacity = 0.95;
+            this.depth = 8;
+            this.distance = 50;
+            this.showRungs = false;
+          };
+
+          var couples = new Array();
+          for(var i=0; i<numCouples; i++){
+
+            var red = two.makeCircle(0, 0, 20);
+            red.noStroke();
+            red.fill = settings.color_1;
+            red.opacity = settings.opacity;
+            red.translation.set(two.width / 2, i*50);
+            foreground.add(red);
+
+            var blue = two.makeCircle(0, 0, 20);
+            blue.opacity = settings.opacity;
+            blue.translation.set(two.width / 2 + 20, i*50);
+            blue.noStroke();
+            blue.fill = settings.color_2;
+
+            var line = two.makeLine(0,i*50,100,i*50);
+            line.opacity = .3;
+            background.add(line);
+
+            couples[i] = new Duo(red, blue, line);
+          }
+
+          function Duo(red, blue){
+            this.red = red;
+            this.blue = blue;
+            this.line = line;
+            var isBackground = false;
+          }
+
+          var gui = new dat.GUI();
+
+          var f1 = gui.addFolder('motion');
+          f1.add(settings, 'speed', 0, 10);
+          f1.add(settings, 'twist', 0, 100);
+          f1.add(settings, 'depth', 0, 10);
+          f1.add(settings, 'distance', 0, 100);
+          f1.closed = false;
+          
+          var f2 = gui.addFolder('color');
+          var color_1_control = f2.addColor(settings, 'color_1');
+          var color_2_control = f2.addColor(settings, 'color_2');
+          var opacity_control = f2.add(settings, 'opacity', 0, 1);
+          f2.closed = false;
+
+          gui.add(settings, 'showRungs');
+
+          two
+            .bind('resize', resizeWindow)
+            .bind('update', updateTwo)
+            .play();
+
+          function updateTwo(frameCount) {
+
+                theta += settings.speed * (frameCount-prevFrameCount)/ (Math.PI * 40);
+
+                for(var i=0; i<couples.length; i++){
+                  
+                  local_theta = theta + (i * settings.twist)/(Math.PI * 40);
+                  var sine = Math.sin( local_theta );
+                  var cosine = Math.cos( local_theta );
+
+                  if (sine >= 0.9 && couples[i].isBackground) {
+                    foreground.add(couples[i].blue);
+                    couples[i].isBackground = false;
+                  }
+                  if (sine <= - 0.9 && !couples[i].isBackground) {
+                    background.add(couples[i].blue);
+                    couples[i].isBackground = true;
+                  }
+
+                  var scale_max = 0.04 * settings.depth;
+                  
+                  couples[i].blue.translation.x = sine * settings.distance + two.width / 2;
+                  couples[i].blue.scale = (-cosine) * scale_max + (1 - scale_max);
+
+                  couples[i].red.translation.x = (-sine) * settings.distance + two.width / 2;
+                  couples[i].red.scale = cosine * scale_max + (1 - scale_max);
+
+                  if(settings.showRungs){
+                    couples[i].line.opacity = 0.3;
+                    couples[i].line.vertices[0].x = couples[i].red.translation.x - 50;
+                    couples[i].line.vertices[1].x = couples[i].blue.translation.x - 50;
+                  }
+                  else{
+                    couples[i].line.opacity = 0.0;
+                  }
+                }
+
+                prevFrameCount = frameCount;
+
+          };
+
+          function resizeWindow() {
+
+                // duo.red.translation.x = two.width / 2;
+                // duo.red.translation.y = two.height / 2;
+                // duo.blue.translation.x = two.width / 2;
+                // duo.blue.translation.y = two.height / 2;
+                // path.translation.copy(duo.blue.translation);
+                // path.translation.copy(duo.red.translation);
+          };
+
+          color_1_control.onChange(function(value) {
+            // Fires on every change, drag, keypress, etc.
+            for(var i=0; i<couples.length; i++){
+              couples[i].red.fill = settings.color_1;
+            }
+          });
+
+          color_2_control.onChange(function(value) {
+            // Fires on every change, drag, keypress, etc.
+            for(var i=0; i<couples.length; i++){
+              couples[i].blue.fill = settings.color_2;
+            }
+          });
+
+          opacity_control.onChange(function(value) {
+            // Fires on every change, drag, keypress, etc.
+            for(var i=0; i<couples.length; i++){
+              couples[i].blue.opacity = settings.opacity;
+              couples[i].red.opacity = settings.opacity;
+            }
+          });
+
+
+        });
+
+      </script>
+      <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-2756299-3']);
+        _gaq.push(['_trackPageview']);
+
+        (function() {
+          var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+          ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+          var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+
+      </script>
+    </div>
+  </body>
+</html>
