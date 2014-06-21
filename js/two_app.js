@@ -41,12 +41,14 @@
           two: this.two,
           translation: new Two.Vector(-this.two.width / 2, 0),
           rotation: -0.3,
-          shadowOffset: 22
+          shadowOffset: 22,
+          startAmount: 10
         }), new StripeRain({
           two: this.two,
           translation: new Two.Vector(this.two.width / 2, 0),
           rotation: 0.3 + Math.PI,
-          shadowOffset: -22
+          shadowOffset: -22,
+          startAmount: 10
         })
       ];
     };

@@ -23,22 +23,18 @@ class @StripeRain
     @options.rotation ||= 0
     @_init()
 
-  getPos: ->
-    @maxPos ||= _.max([@two.width, @two.height])
-    pos = (Math.random()-0.5) * @maxPos
-
-  getSize: -> 
+  getNewStripeData: ->
     # minimum size is the diagonal of the scene
     @minSize ||= Math.sqrt(Math.pow(@two.width,2), Math.pow(@two.height,2))
     # get a nice size for a new stripe
     size = @minSize + Math.random()*500
 
-  getFatness: ->
-    @options.fatness || 25
+    w = @options.fatness || 25
 
-  getNewStripeData: ->
-    size = @getSize()
-    { x: @getPos(), y: -size, width: @getFatness(), height: size }
+    @maxPos ||= _.max([@two.width, @two.height])
+    pos = (Math.random()-0.5) * @maxPos
+
+    { x: pos, y: -size, width: w, height: size }
 
   addOne: ->
     @stripes.add(new Stripe(@getNewStripeData()))
@@ -61,7 +57,8 @@ class @StripeRain
     @group.rotation = @options.rotation if @options.rotation
 
     # start by adding one stripe
-    @addOne();
+    _.each _.range(@options.startAmount || 1), (i) =>
+      @addOne();
 
   _update: (frameCount) ->
     @stripes.each (stripe,col) -> stripe.update()
@@ -108,6 +105,6 @@ class @StripeRain
       stripe.randomize()
 
     # stripe died; add another stripe if limit hasn't been reached yet
-    @addOne() if @stripes.length < 50 if value == false
+    @addOne() if @stripes.length < (@options.maxAmount || 50) if value == false
 
     

@@ -54,29 +54,17 @@
       this._init();
     }
 
-    StripeRain.prototype.getPos = function() {
-      var pos;
-      this.maxPos || (this.maxPos = _.max([this.two.width, this.two.height]));
-      return pos = (Math.random() - 0.5) * this.maxPos;
-    };
-
-    StripeRain.prototype.getSize = function() {
-      var size;
-      this.minSize || (this.minSize = Math.sqrt(Math.pow(this.two.width, 2), Math.pow(this.two.height, 2)));
-      return size = this.minSize + Math.random() * 500;
-    };
-
-    StripeRain.prototype.getFatness = function() {
-      return this.options.fatness || 25;
-    };
-
     StripeRain.prototype.getNewStripeData = function() {
-      var size;
-      size = this.getSize();
+      var pos, size, w;
+      this.minSize || (this.minSize = Math.sqrt(Math.pow(this.two.width, 2), Math.pow(this.two.height, 2)));
+      size = this.minSize + Math.random() * 500;
+      w = this.options.fatness || 25;
+      this.maxPos || (this.maxPos = _.max([this.two.width, this.two.height]));
+      pos = (Math.random() - 0.5) * this.maxPos;
       return {
-        x: this.getPos(),
+        x: pos,
         y: -size,
-        width: this.getFatness(),
+        width: w,
         height: size
       };
     };
@@ -108,7 +96,9 @@
       if (this.options.rotation) {
         this.group.rotation = this.options.rotation;
       }
-      return this.addOne();
+      return _.each(_.range(this.options.startAmount || 1), function(i) {
+        return _this.addOne();
+      });
     };
 
     StripeRain.prototype._update = function(frameCount) {
@@ -153,7 +143,7 @@
         stripe.get('particle').translation.set(stripe.get('x'), stripe.get('y'));
         stripe.randomize();
       }
-      if (value === false ? this.stripes.length < 50 : void 0) {
+      if (value === false ? this.stripes.length < (this.options.maxAmount || 50) : void 0) {
         return this.addOne();
       }
     };

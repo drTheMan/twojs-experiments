@@ -23,8 +23,8 @@ class @TwoApp
 
   _initStripes: ->
     @stripes = [
-      new StripeRain({two: @two, translation: new Two.Vector(-@two.width/2, 0), rotation: -0.3, shadowOffset: 22})
-      new StripeRain({two: @two, translation: new Two.Vector(@two.width/2, 0), rotation: 0.3 + Math.PI, shadowOffset: -22})
+      new StripeRain({two: @two, translation: new Two.Vector(-@two.width/2, 0), rotation: -0.3, shadowOffset: 22, startAmount: 10})
+      new StripeRain({two: @two, translation: new Two.Vector(@two.width/2, 0), rotation: 0.3 + Math.PI, shadowOffset: -22, startAmount: 10})
     ]
 
   _initCircles: ->
