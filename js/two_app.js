@@ -24,7 +24,11 @@
     TwoApp.prototype._initScene = function() {
       this._initBG();
       this._initStripes();
-      return this._initLetterbox();
+      this._initCircles();
+      this._initLetterbox();
+      return this.two.bind('update', function() {
+        return TWEEN.update();
+      });
     };
 
     TwoApp.prototype._initBG = function() {
@@ -54,26 +58,11 @@
     };
 
     TwoApp.prototype._initCircles = function() {
-      var amount, circle, distance, last, min_dimension, points, radius;
-      min_dimension = _.min([this.two.width, this.two.height]);
-      amount = 25;
-      last = amount - 1;
-      radius = min_dimension * 0.33;
-      distance = this.two.height / 6;
-      points = _.map(_.range(amount), function(i) {
-        var pct, theta, x, y;
-        pct = i / last;
-        theta = pct * Math.PI + Math.PI * 0.25;
-        x = radius * Math.cos(theta);
-        y = radius * Math.sin(theta);
-        return new Two.Anchor(x, y);
+      return this.circle_closer = new CircleCloser({
+        two: this.two,
+        color: '#FFFF00',
+        radius: 200
       });
-      circle = new Two.Polygon(points, false, true);
-      circle.fill = '#BF00A5';
-      circle.noStroke();
-      circle.opacity = 0.8;
-      circle.translation.set(this.two.width / 2, this.two.height / 2);
-      return this.two.add(circle);
     };
 
     TwoApp.prototype._initLetterbox = function() {
@@ -112,7 +101,8 @@
     };
 
     TwoApp.prototype._keyDown = function(e) {
-      var _ref;
+      var _ref,
+        _this = this;
       if (e.metaKey || e.ctrlKey) {
         return;
       }
@@ -122,10 +112,28 @@
           "true": false
         };
         if (this.running) {
-          return this.two.play();
+          this.two.play();
         } else {
-          return this.two.pause();
+          this.two.pause();
         }
+      }
+      if (e.keyCode === 67 && this.circle_closer) {
+        this.circle_closer.group.rotation = Math.random() * Math.PI * 2;
+        new TWEEN.Tween(this.circle_closer.polygon1.translation).to({
+          y: -1
+        }, 750).easing(TWEEN.Easing.Exponential.InOut).start().onComplete(function() {
+          _this.circle_closer.group.rotation = Math.random() * Math.PI * 2;
+          return new TWEEN.Tween(_this.circle_closer.polygon1.translation).to({
+            y: 2000
+          }, 750).easing(TWEEN.Easing.Exponential.InOut).delay(500).start();
+        });
+        return new TWEEN.Tween(this.circle_closer.polygon2.translation).to({
+          y: 1
+        }, 750).easing(TWEEN.Easing.Exponential.InOut).start().onComplete(function() {
+          return new TWEEN.Tween(_this.circle_closer.polygon2.translation).to({
+            y: -2000
+          }, 750).easing(TWEEN.Easing.Exponential.InOut).delay(500).start();
+        });
       }
     };
 

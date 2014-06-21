@@ -12,8 +12,9 @@ class @TwoApp
   _initScene: ->
     @_initBG()
     @_initStripes()
-    # @_initCircles()
+    @_initCircles()
     @_initLetterbox()
+    @two.bind 'update', -> TWEEN.update()
 
   _initBG: ->
     bg = @two.makeRectangle(@two.width/2,@two.height/2, @two.width, @two.height)
@@ -28,25 +29,7 @@ class @TwoApp
     ]
 
   _initCircles: ->
-    min_dimension = _.min([@two.width, @two.height])
-    amount = 25
-    last = amount - 1
-    radius = min_dimension * 0.33
-    distance = @two.height / 6
-
-    points = _.map _.range(amount), (i) ->
-      pct = i / last
-      theta = pct * Math.PI + Math.PI * 0.25
-      x = radius * Math.cos(theta)
-      y = radius * Math.sin(theta)
-      return new Two.Anchor(x, y)
-
-    circle = new Two.Polygon(points, false, true)
-    circle.fill = '#BF00A5'
-    circle.noStroke()
-    circle.opacity = 0.8
-    circle.translation.set(@two.width/2, @two.height/2)
-    @two.add(circle)
+    @circle_closer = new CircleCloser({two: @two, color: '#FFFF00', radius: 200})
 
   _initLetterbox: ->
     fatness = @two.height * 0.1
@@ -76,6 +59,9 @@ class @TwoApp
     @two.height = @two.renderer.height;
 
   _keyDown: (e) =>
+    #console.log('keydown event:')
+    #console.log(e)
+
     return if (e.metaKey || e.ctrlKey)
     e.preventDefault()
     if e.keyCode == 32 # SPACE
@@ -84,6 +70,33 @@ class @TwoApp
         @two.play() 
       else
         @two.pause()
+
+    if e.keyCode == 67 && @circle_closer # 'c'
+      @circle_closer.group.rotation = Math.random()*Math.PI*2
+      new TWEEN.Tween( @circle_closer.polygon1.translation )
+        .to( { y: -1 }, 750)
+        # .easing( TWEEN.Easing.Bounce.InOut )
+        .easing( TWEEN.Easing.Exponential.InOut )
+        .start()
+        .onComplete =>
+          @circle_closer.group.rotation = Math.random()*Math.PI*2
+          new TWEEN.Tween( @circle_closer.polygon1.translation )
+            .to( { y: 2000 }, 750)
+            .easing( TWEEN.Easing.Exponential.InOut )
+            .delay(500)
+            .start()
+
+
+      new TWEEN.Tween( @circle_closer.polygon2.translation )
+        .to( { y: 1 }, 750)
+        .easing( TWEEN.Easing.Exponential.InOut )
+        .start()
+        .onComplete =>
+          new TWEEN.Tween( @circle_closer.polygon2.translation )
+            .to( { y: -2000 }, 750)
+            .easing( TWEEN.Easing.Exponential.InOut )
+            .delay(500)
+            .start()
 
   _mouseMove: (event) =>
     if @lastMouseX && @lastMouseY && @operations.length < 20
