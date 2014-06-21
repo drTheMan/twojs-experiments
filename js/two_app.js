@@ -119,20 +119,28 @@
       }
       if (e.keyCode === 67 && this.circle_closer) {
         this.circle_closer.group.rotation = Math.random() * Math.PI * 2;
-        new TWEEN.Tween(this.circle_closer.polygon1.translation).to({
-          y: -1
+        return new TWEEN.Tween(this.circle_closer.group).to({
+          rotation: this.circle_closer.group.rotation + Math.random() * Math.PI * 2
         }, 750).easing(TWEEN.Easing.Exponential.InOut).start().onComplete(function() {
           _this.circle_closer.group.rotation = Math.random() * Math.PI * 2;
-          return new TWEEN.Tween(_this.circle_closer.polygon1.translation).to({
-            y: 2000
+          return new TWEEN.Tween(_this.circle_closer.group).to({
+            rotation: _this.circle_closer.group.rotation + Math.random() * Math.PI * 2
           }, 750).easing(TWEEN.Easing.Exponential.InOut).delay(500).start();
-        });
-        return new TWEEN.Tween(this.circle_closer.polygon2.translation).to({
-          y: 1
-        }, 750).easing(TWEEN.Easing.Exponential.InOut).start().onComplete(function() {
+        }).onStart(function() {
+          new TWEEN.Tween(_this.circle_closer.polygon1.translation).to({
+            y: -1
+          }, 750).easing(TWEEN.Easing.Exponential.InOut).start().onComplete(function() {
+            return new TWEEN.Tween(_this.circle_closer.polygon1.translation).to({
+              y: 2000
+            }, 750).easing(TWEEN.Easing.Exponential.InOut).delay(500).start();
+          });
           return new TWEEN.Tween(_this.circle_closer.polygon2.translation).to({
-            y: -2000
-          }, 750).easing(TWEEN.Easing.Exponential.InOut).delay(500).start();
+            y: 1
+          }, 750).easing(TWEEN.Easing.Exponential.InOut).start().onComplete(function() {
+            return new TWEEN.Tween(_this.circle_closer.polygon2.translation).to({
+              y: -2000
+            }, 750).easing(TWEEN.Easing.Exponential.InOut).delay(500).start();
+          });
         });
       }
     };

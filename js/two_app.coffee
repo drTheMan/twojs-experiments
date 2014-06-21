@@ -73,30 +73,41 @@ class @TwoApp
 
     if e.keyCode == 67 && @circle_closer # 'c'
       @circle_closer.group.rotation = Math.random()*Math.PI*2
-      new TWEEN.Tween( @circle_closer.polygon1.translation )
-        .to( { y: -1 }, 750)
-        # .easing( TWEEN.Easing.Bounce.InOut )
+      new TWEEN.Tween( @circle_closer.group )
+        .to({rotation: @circle_closer.group.rotation + Math.random()*Math.PI*2}, 750)
         .easing( TWEEN.Easing.Exponential.InOut )
         .start()
         .onComplete =>
           @circle_closer.group.rotation = Math.random()*Math.PI*2
+          new TWEEN.Tween( @circle_closer.group )
+            .to({rotation: @circle_closer.group.rotation + Math.random()*Math.PI*2}, 750)
+            .easing( TWEEN.Easing.Exponential.InOut )
+            .delay(500)
+            .start()
+        .onStart =>
           new TWEEN.Tween( @circle_closer.polygon1.translation )
-            .to( { y: 2000 }, 750)
+            .to( { y: -1 }, 750)
+            # .easing( TWEEN.Easing.Bounce.InOut )
             .easing( TWEEN.Easing.Exponential.InOut )
-            .delay(500)
             .start()
+            .onComplete =>
+              new TWEEN.Tween( @circle_closer.polygon1.translation )
+                .to( { y: 2000 }, 750)
+                .easing( TWEEN.Easing.Exponential.InOut )
+                .delay(500)
+                .start()
 
-
-      new TWEEN.Tween( @circle_closer.polygon2.translation )
-        .to( { y: 1 }, 750)
-        .easing( TWEEN.Easing.Exponential.InOut )
-        .start()
-        .onComplete =>
           new TWEEN.Tween( @circle_closer.polygon2.translation )
-            .to( { y: -2000 }, 750)
+            .to( { y: 1 }, 750)
             .easing( TWEEN.Easing.Exponential.InOut )
-            .delay(500)
             .start()
+            .onComplete =>
+              new TWEEN.Tween( @circle_closer.polygon2.translation )
+                .to( { y: -2000 }, 750)
+                .easing( TWEEN.Easing.Exponential.InOut )
+                .delay(500)
+                .start()
+
 
   _mouseMove: (event) =>
     if @lastMouseX && @lastMouseY && @operations.length < 20
