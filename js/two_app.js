@@ -24,7 +24,6 @@
     TwoApp.prototype._initScene = function() {
       this._initBG();
       this._initStripes();
-      this._initCircles();
       return this._initLetterbox();
     };
 

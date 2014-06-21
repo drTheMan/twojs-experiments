@@ -12,7 +12,7 @@ class @TwoApp
   _initScene: ->
     @_initBG()
     @_initStripes()
-    @_initCircles()
+    # @_initCircles()
     @_initLetterbox()
 
   _initBG: ->
