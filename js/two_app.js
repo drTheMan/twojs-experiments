@@ -27,6 +27,11 @@
           return _this.trigger('shutter');
         }
       }, 'Shutter');
+      folder.add({
+        Arrows: function() {
+          return _this.trigger('arrows');
+        }
+      }, 'Arrows');
       return folder.open();
     };
 
@@ -67,8 +72,13 @@
           strength: 10 + Math.random() * 10
         }));
       });
-      return this.app_ui.on('shutter', function() {
+      this.app_ui.on('shutter', function() {
         return _this.circle_closer_operations.shutter();
+      });
+      return this.app_ui.on('arrows', function() {
+        return _this.arrows_operations.move_out({
+          spirality: 200
+        });
       });
     };
 
@@ -76,6 +86,7 @@
       this._initBG();
       this._initStripes();
       this._initCircles();
+      this._initArrows();
       this._initLetterbox();
       return this.two.bind('update', function() {
         return TWEEN.update();
@@ -119,6 +130,16 @@
         target: this.circle_closer
       });
       return this.circle_closer_operations.open();
+    };
+
+    TwoApp.prototype._initArrows = function() {
+      this.arrows = new Arrows({
+        two: this.two
+      });
+      this.arrows_operations = new ArrowsOperations({
+        target: this.arrows
+      });
+      return this.arrows_operations.hide();
     };
 
     TwoApp.prototype._initLetterbox = function() {

@@ -8,6 +8,7 @@ class @AppUi extends Backbone.Model
     folder = @gui.addFolder 'Actions'
     folder.add({Shake: => @trigger 'shake'}, 'Shake')
     folder.add({Shutter: => @trigger 'shutter'}, 'Shutter')
+    folder.add({Arrows: => @trigger 'arrows'}, 'Arrows')
     folder.open()
 
 
@@ -30,13 +31,15 @@ class @TwoApp
       all_particles = _.flatten(_.map(@stripes, (stripe) -> stripe.getAllParticles()))
       @operations.add(new WiggleOperation({particles: all_particles, strength: 10+Math.random()*10}))
 
-    @app_ui.on 'shutter', =>
-      @circle_closer_operations.shutter()
+    @app_ui.on 'shutter', => @circle_closer_operations.shutter()
+
+    @app_ui.on 'arrows', => @arrows_operations.move_out({spirality: 200})
 
   _initScene: ->
     @_initBG()
     @_initStripes()
     @_initCircles()
+    @_initArrows()
     @_initLetterbox()
     @two.bind 'update', -> TWEEN.update()
 
@@ -56,6 +59,11 @@ class @TwoApp
     @circle_closer = new CircleCloser({two: @two, color: '#FFFF00', radius: 200})
     @circle_closer_operations = new CircleCloserOperations({target: @circle_closer})
     @circle_closer_operations.open()
+
+  _initArrows: ->
+    @arrows = new Arrows(two: @two)
+    @arrows_operations = new ArrowsOperations(target: @arrows)
+    @arrows_operations.hide()
 
   _initLetterbox: ->
     fatness = @two.height * 0.1
