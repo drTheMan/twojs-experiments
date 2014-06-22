@@ -1,3 +1,16 @@
+class @AppUi extends Backbone.Model
+  constructor: (_opts) ->
+    @options = _opts
+    @_initGui()
+
+  _initGui: ->
+    @gui = new dat.GUI() # ({autoPlace:true});
+    folder = @gui.addFolder 'Actions'
+    folder.add({Shake: => @trigger 'shake'}, 'Shake')
+    folder.add({Shutter: => @trigger 'shutter'}, 'Shutter')
+    folder.open()
+
+
 class @TwoApp
   constructor: (_opts) ->
     @options = _opts
@@ -6,8 +19,19 @@ class @TwoApp
   init: ->
     @two = new Two({autostart: true, fullscreen: true, type: Two.Types.svg}).appendTo(document.body)
     $(window).on('resize', @_resize).on('keydown', @_keyDown).mousemove(@_mouseMove)
+    @_initUI()
     @_initScene()
     @_initOperations()
+
+  _initUI: ->
+    @app_ui = new AppUi()
+
+    @app_ui.on 'shake', =>
+      all_particles = _.flatten(_.map(@stripes, (stripe) -> stripe.getAllParticles()))
+      @operations.add(new WiggleOperation({particles: all_particles, strength: 10+Math.random()*10}))
+
+    @app_ui.on 'shutter', =>
+      @circle_closer_operations.shutter()
 
   _initScene: ->
     @_initBG()
