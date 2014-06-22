@@ -89,7 +89,6 @@
 
     CircleCloserOperations.prototype.shutter = function(opts) {
       var _this = this;
-      this.target().group.rotation = Math.random() * Math.PI * 2;
       return new TWEEN.Tween(this.target().group).to({
         rotation: this.target().group.rotation + Math.random() * Math.PI * 2
       }, 750).easing(TWEEN.Easing.Exponential.InOut).start().onComplete(function() {

@@ -44,6 +44,7 @@
         new StripeRain({
           two: this.two,
           translation: new Two.Vector(-this.two.width / 2, 0),
+          fatness: 15,
           rotation: -0.3,
           shadowOffset: 22,
           startAmount: 10

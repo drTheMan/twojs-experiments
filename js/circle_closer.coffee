@@ -70,8 +70,6 @@ class @CircleCloserOperations
     @target().polygon2.translation.set(0, -amount/2)
 
   shutter: (opts) ->
-    @target().group.rotation = Math.random()*Math.PI*2
-
     new TWEEN.Tween( @target().group )
       .to({rotation: @target().group.rotation + Math.random()*Math.PI*2}, 750)
       .easing( TWEEN.Easing.Exponential.InOut )
