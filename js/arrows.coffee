@@ -22,7 +22,7 @@ class @Arrows
     @arrows = new Backbone.Collection(models)
 
     # put all polygon in a group and give them all the same appearance
-    @_group().fill = @options.color || '#0000FF'
+    @_group().fill = @options.color || '#51EE98'
     @_group().noStroke()
     # @_group().opacity = 0.8
 

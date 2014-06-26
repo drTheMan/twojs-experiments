@@ -123,13 +123,21 @@
     TwoApp.prototype._initCircles = function() {
       this.circle_closer = new CircleCloser({
         two: this.two,
-        color: '#FFFF00',
+        color: '#F3CB5A',
         radius: 200
       });
       this.circle_closer_operations = new CircleCloserOperations({
         target: this.circle_closer
       });
-      return this.circle_closer_operations.open();
+      this.circle_closer_operations.open();
+      this.permanent_circle = new CircleCloser({
+        two: this.two,
+        radius: _.min([this.two.width, this.two.height]) * 0.6
+      });
+      this.permanent_circle_operations = new CircleCloserOperations({
+        target: this.permanent_circle
+      });
+      return this.permanent_circle_operations.open(-1);
     };
 
     TwoApp.prototype._initArrows = function() {

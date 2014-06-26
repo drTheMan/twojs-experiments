@@ -56,9 +56,12 @@ class @TwoApp
     ]
 
   _initCircles: ->
-    @circle_closer = new CircleCloser({two: @two, color: '#FFFF00', radius: 200})
+    @circle_closer = new CircleCloser({two: @two, color: '#F3CB5A', radius: 200})
     @circle_closer_operations = new CircleCloserOperations({target: @circle_closer})
     @circle_closer_operations.open()
+    @permanent_circle = new CircleCloser({two: @two, radius: _.min([@two.width, @two.height])*0.6})
+    @permanent_circle_operations = new CircleCloserOperations({target: @permanent_circle})
+    @permanent_circle_operations.open(-1)
 
   _initArrows: ->
     @arrows = new Arrows(two: @two)

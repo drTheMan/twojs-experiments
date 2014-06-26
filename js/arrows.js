@@ -27,7 +27,7 @@
         });
       });
       this.arrows = new Backbone.Collection(models);
-      this._group().fill = this.options.color || '#0000FF';
+      this._group().fill = this.options.color || '#51EE98';
       return this._group().noStroke();
     };
 
