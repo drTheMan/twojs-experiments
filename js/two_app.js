@@ -32,6 +32,11 @@
           return _this.trigger('arrows');
         }
       }, 'Arrows');
+      folder.add({
+        Rings: function() {
+          return _this.trigger('scale');
+        }
+      }, 'Rings');
       return folder.open();
     };
 
@@ -75,10 +80,13 @@
       this.app_ui.on('shutter', function() {
         return _this.circle_closer_operations.shutter();
       });
-      return this.app_ui.on('arrows', function() {
+      this.app_ui.on('arrows', function() {
         return _this.arrows_operations.move_out({
           spirality: 200
         });
+      });
+      return this.app_ui.on('scale', function() {
+        return _this.ringer_operations.scale();
       });
     };
 
@@ -143,12 +151,13 @@
 
     TwoApp.prototype._initRingers = function() {
       var minRadius;
-      minRadius = _.min([this.two.width, this.two.height]) * 0.6 - 10;
+      minRadius = _.min([this.two.width, this.two.height]) * 0.6 + 10;
       this.ringer = new Ringer({
         two: this.two,
         minRadius: minRadius,
-        maxRadius: minRadius + 200,
-        minThickness: 20
+        maxRadius: minRadius + 400,
+        minThickness: 30,
+        maxThickness: 100
       });
       this.ringer_operations = new RingerOperations({
         target: this.ringer
@@ -218,7 +227,19 @@
         }
       }
       if (e.keyCode === 67 && this.circle_closer) {
-        return this.circle_closer_operations.shutter();
+        this.circle_closer_operations.shutter();
+      }
+      if (e.keyCode === 49) {
+        this.app_ui.trigger('shake');
+      }
+      if (e.keyCode === 50) {
+        this.app_ui.trigger('shutter');
+      }
+      if (e.keyCode === 51) {
+        this.app_ui.trigger('arrows');
+      }
+      if (e.keyCode === 52) {
+        return this.app_ui.trigger('scale');
       }
     };
 

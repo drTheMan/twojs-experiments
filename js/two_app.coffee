@@ -9,6 +9,7 @@ class @AppUi extends Backbone.Model
     folder.add({Shake: => @trigger 'shake'}, 'Shake')
     folder.add({Shutter: => @trigger 'shutter'}, 'Shutter')
     folder.add({Arrows: => @trigger 'arrows'}, 'Arrows')
+    folder.add({Rings: => @trigger 'scale'}, 'Rings')
     folder.open()
 
 
@@ -34,6 +35,8 @@ class @TwoApp
     @app_ui.on 'shutter', => @circle_closer_operations.shutter()
 
     @app_ui.on 'arrows', => @arrows_operations.move_out({spirality: 200})
+
+    @app_ui.on 'scale', => @ringer_operations.scale()
 
   _initScene: ->
     @_initBG()
@@ -65,9 +68,8 @@ class @TwoApp
     @permanent_circle_operations.open(-1)
 
   _initRingers: ->
-    # @ringer = new Ringer({two: @two, radius: _.min([@two.width, @two.height])*0.6-10})
-    minRadius = _.min([@two.width, @two.height])*0.6-10
-    @ringer = new Ringer({two: @two, minRadius: minRadius, maxRadius: minRadius+200, minThickness: 20})
+    minRadius = _.min([@two.width, @two.height])*0.6+10
+    @ringer = new Ringer({two: @two, minRadius: minRadius, maxRadius: minRadius+400, minThickness: 30, maxThickness: 100})
     @ringer_operations = new RingerOperations({target: @ringer})
     @ringer_operations.rotate()
 
@@ -105,7 +107,7 @@ class @TwoApp
 
   _keyDown: (e) =>
     #console.log('keydown event:')
-    #console.log(e)
+    # console.log(e)
 
     return if (e.metaKey || e.ctrlKey)
     e.preventDefault()
@@ -119,6 +121,10 @@ class @TwoApp
     if e.keyCode == 67 && @circle_closer # 'c'
       @circle_closer_operations.shutter()
 
+    @app_ui.trigger('shake') if e.keyCode == 49 # '1'
+    @app_ui.trigger('shutter') if e.keyCode == 50 
+    @app_ui.trigger('arrows') if e.keyCode == 51
+    @app_ui.trigger('scale') if e.keyCode == 52
 
   _mouseMove: (event) =>
     if @lastMouseX && @lastMouseY && @operations.length < 20

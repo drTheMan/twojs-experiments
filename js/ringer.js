@@ -23,6 +23,10 @@
       return this.options.thickness || 30;
     };
 
+    RingerPart.prototype._color = function() {
+      return this.options.color || '#FF0000';
+    };
+
     RingerPart.prototype._group = function() {
       if (this.group) {
         return this.group;
@@ -54,6 +58,7 @@
       });
       polygon = new Two.Polygon(_.union(inner_points, outer_points), true, false);
       polygon.rotation = rotation;
+      polygon.fill = this._color();
       return polygon.addTo(this._group());
     };
 
@@ -96,6 +101,10 @@
       return this.options.maxThickness || 30;
     };
 
+    Ringer.prototype._colors = function() {
+      return this.options.colors || ['#E3D253', '#F59A54', '#F12648', '#EE2756'];
+    };
+
     Ringer.prototype._init = function() {
       var _this = this;
       return this.ringer_parts = _.map(_.range(this._amount()), function(i) {
@@ -107,7 +116,8 @@
           radius: _this._minRadius() + Math.random() * (_this._maxRadius() - _this._minRadius()),
           angle: a,
           thickness: _this._minThickness() + Math.random() * (_this._maxThickness() - _this._minThickness()),
-          rotation: rot
+          rotation: rot,
+          color: _.sample(_this._colors())
         });
       });
     };
@@ -126,7 +136,7 @@
     };
 
     RingerOperations.prototype.rotate = function(speed, divergence) {
-      var duration, rotation_tweens, rotations;
+      var duration, rotations;
       if (speed === void 0) {
         speed = 1;
       }
@@ -135,10 +145,30 @@
       }
       rotations = 10000;
       duration = 10000 * rotations / speed;
-      return rotation_tweens = _.map(this.target().ringer_parts, function(rp) {
+      return this.rotation_tweens = _.map(this.target().ringer_parts, function(rp) {
+        var rot;
+        rot = rp.group.rotation + Math.PI * 2 * rotations;
+        if (Math.random() > 0.5) {
+          rot = -rot;
+        }
         return new TWEEN.Tween(rp.group).to({
-          rotation: rp.group.rotation + Math.PI * 2 * rotations
+          rotation: rot
         }, duration - Math.random() * divergence * 40000).easing(TWEEN.Easing.Linear.None).start();
+      });
+    };
+
+    RingerOperations.prototype.scale = function() {
+      return this.scale_tweens = _.map(this.target().ringer_parts, function(rp) {
+        var scale1, scale2;
+        scale1 = rp.group.scale * 0.7;
+        scale2 = rp.group.scale;
+        return new TWEEN.Tween(rp.group).to({
+          scale: scale1
+        }, 1000).easing(TWEEN.Easing.Exponential.Out).start().onComplete(function() {
+          return new TWEEN.Tween(rp.group).to({
+            scale: scale2
+          }, 1000).easing(TWEEN.Easing.Exponential.Out).delay(1000).start();
+        });
       });
     };
 

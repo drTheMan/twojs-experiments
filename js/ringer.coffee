@@ -16,6 +16,9 @@ class @RingerPart
   _thickness: ->
     @options.thickness || 30
 
+  _color: ->
+    @options.color || '#FF0000'
+
   _group: ->
     return @group if @group
     @group = @two.makeGroup()
@@ -44,6 +47,7 @@ class @RingerPart
 
     polygon = new Two.Polygon(_.union(inner_points, outer_points), true, false)
     polygon.rotation = rotation
+    polygon.fill = @_color()
     polygon.addTo(@_group())
 
 
@@ -60,6 +64,7 @@ class @Ringer
   _maxRadius: -> @options.maxRadius || _.min([@two.width, @two.height])
   _minThickness: -> @options.minThickness || 10
   _maxThickness: -> @options.maxThickness || 30
+  _colors: -> @options.colors || ['#E3D253', '#F59A54', '#F12648', '#EE2756']
 
   _init: ->
     @ringer_parts = _.map _.range(@_amount()), (i) =>
@@ -71,7 +76,8 @@ class @Ringer
         radius: @_minRadius()+Math.random()*(@_maxRadius()-@_minRadius()),
         angle: a,
         thickness: @_minThickness()+Math.random()*(@_maxThickness()-@_minThickness()),
-        rotation: rot
+        rotation: rot,
+        color: _.sample(@_colors())
       })
 
 class @RingerOperations
@@ -92,11 +98,31 @@ class @RingerOperations
     duration = 10000*rotations/speed
 
     # create one tween per ringer part
-    rotation_tweens = _.map @target().ringer_parts, (rp) ->
+    @rotation_tweens = _.map @target().ringer_parts, (rp) ->
+      rot = rp.group.rotation + Math.PI * 2 * rotations
+      rot = -rot if Math.random() > 0.5
       new TWEEN.Tween( rp.group ) 
-        .to({rotation: rp.group.rotation + Math.PI * 2 * rotations}, duration - Math.random()*divergence*40000)
+        .to({rotation: rot}, duration - Math.random()*divergence*40000)
         .easing( TWEEN.Easing.Linear.None )
         .start()
+
+  scale: ->
+    # create one tween per ringer part
+    @scale_tweens = _.map @target().ringer_parts, (rp) ->
+      scale1 = rp.group.scale * 0.7
+      scale2 = rp.group.scale
+      new TWEEN.Tween( rp.group ) 
+        .to({scale: scale1}, 1000)
+        .easing( TWEEN.Easing.Exponential.Out )
+        .start()
+        .onComplete ->
+          new TWEEN.Tween( rp.group ) 
+            .to({scale: scale2}, 1000)
+            .easing( TWEEN.Easing.Exponential.Out )
+            .delay(1000)
+            .start()
+
+
 
 
 
