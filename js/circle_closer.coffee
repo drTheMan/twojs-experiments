@@ -30,11 +30,9 @@ class @CircleCloser
 
   _initPolygon: (rotation) ->
     rotation = 0 if rotation == undefined
-    min_dimension = _.min([@two.width, @two.height])
     amount = 25
     last = amount - 1
-    radius = @_radius() # min_dimension * 0.33
-    distance = @two.height / 6
+    radius = @_radius()
 
     points = _.map _.range(amount), (i) ->
       pct = i / last

@@ -36,15 +36,13 @@
     };
 
     CircleCloser.prototype._initPolygon = function(rotation) {
-      var amount, distance, last, min_dimension, points, polygon, radius;
+      var amount, last, points, polygon, radius;
       if (rotation === void 0) {
         rotation = 0;
       }
-      min_dimension = _.min([this.two.width, this.two.height]);
       amount = 25;
       last = amount - 1;
       radius = this._radius();
-      distance = this.two.height / 6;
       points = _.map(_.range(amount), function(i) {
         var pct, theta, x, y;
         pct = i / last;

@@ -86,6 +86,7 @@
       this._initBG();
       this._initStripes();
       this._initCircles();
+      this._initRingers();
       this._initArrows();
       this._initLetterbox();
       return this.two.bind('update', function() {
@@ -138,6 +139,21 @@
         target: this.permanent_circle
       });
       return this.permanent_circle_operations.open(-1);
+    };
+
+    TwoApp.prototype._initRingers = function() {
+      var minRadius;
+      minRadius = _.min([this.two.width, this.two.height]) * 0.6 - 10;
+      this.ringer = new Ringer({
+        two: this.two,
+        minRadius: minRadius,
+        maxRadius: minRadius + 200,
+        minThickness: 20
+      });
+      this.ringer_operations = new RingerOperations({
+        target: this.ringer
+      });
+      return this.ringer_operations.rotate();
     };
 
     TwoApp.prototype._initArrows = function() {

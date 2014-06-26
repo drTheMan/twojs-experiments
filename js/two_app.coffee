@@ -39,6 +39,7 @@ class @TwoApp
     @_initBG()
     @_initStripes()
     @_initCircles()
+    @_initRingers()
     @_initArrows()
     @_initLetterbox()
     @two.bind 'update', -> TWEEN.update()
@@ -62,6 +63,13 @@ class @TwoApp
     @permanent_circle = new CircleCloser({two: @two, radius: _.min([@two.width, @two.height])*0.6})
     @permanent_circle_operations = new CircleCloserOperations({target: @permanent_circle})
     @permanent_circle_operations.open(-1)
+
+  _initRingers: ->
+    # @ringer = new Ringer({two: @two, radius: _.min([@two.width, @two.height])*0.6-10})
+    minRadius = _.min([@two.width, @two.height])*0.6-10
+    @ringer = new Ringer({two: @two, minRadius: minRadius, maxRadius: minRadius+200, minThickness: 20})
+    @ringer_operations = new RingerOperations({target: @ringer})
+    @ringer_operations.rotate()
 
   _initArrows: ->
     @arrows = new Arrows(two: @two)
