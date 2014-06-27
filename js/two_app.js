@@ -92,7 +92,6 @@
 
     TwoApp.prototype._initScene = function() {
       this._initBG();
-      this._initStripes();
       this._initCircles();
       this._initRingers();
       this._initArrows();

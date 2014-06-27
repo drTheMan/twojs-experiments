@@ -40,7 +40,7 @@ class @TwoApp
 
   _initScene: ->
     @_initBG()
-    @_initStripes()
+    # @_initStripes()
     @_initCircles()
     @_initRingers()
     @_initArrows()

@@ -103,11 +103,11 @@
     };
 
     TriGrid.prototype._rows = function() {
-      return this.options.rows || 15;
+      return this.options.rows || this.two.height / this._centerLength();
     };
 
     TriGrid.prototype._cols = function() {
-      return this.options.cols || 30;
+      return this.options.cols || this.two.width / this._sideLength();
     };
 
     TriGrid.prototype._stroke = function() {
@@ -116,7 +116,17 @@
 
     TriGrid.prototype._init = function() {
       var _this = this;
-      this.triads = _.flatten(_.map(_.range(this._rows()), function(ri) {
+      _.each(this.createEveryOtherTriad(), function(t) {
+        return t.polygon.addTo(_this._group());
+      });
+      this._group().noFill();
+      this._group().stroke = this._stroke();
+      return this._group().lineWidth = 2;
+    };
+
+    TriGrid.prototype.createEveryOtherTriad = function() {
+      var _this = this;
+      return _.flatten(_.map(_.range(this._rows()), function(ri) {
         return _.map(_.range(_this._cols()), function(ci) {
           var t, x, y;
           x = ci * _this._sideLength();
@@ -128,22 +138,9 @@
             sideLength: _this._sideLength()
           });
           t.polygon.translation.set(x, y);
-          t.polygon.addTo(_this._group());
           return t;
         });
       }));
-      this._group().noFill();
-      this._group().stroke = this._stroke();
-      this._group().lineWidth = 2;
-      return this.triads[310].polygon;
-    };
-
-    TriGrid.prototype._coordinatesToIndex = function(x, y) {
-      return y * this._cols() + x;
-    };
-
-    TriGrid.prototype.getTriad = function(x, y) {
-      return this.triads[this._coordinatesToIndex(x, y)];
     };
 
     TriGrid.prototype.squarePolygon = function(x, y, w, h) {
@@ -166,9 +163,7 @@
       this.target = this.options.target || this.options.tri_grid || this.options.trigrid || new TriGrid({
         two: this.options.two
       });
-      this.lonelyTravelerTween(5).delay(320).start();
-      this.lonelyTravelerTween(6).delay(160).start();
-      console.log(this.lonelyTravelerTween(7).start());
+      this.lonelyTravelerTween(10).delay(50).start();
     }
 
     TriGridOps.prototype.lonelyTravelerTween = function(row, duration) {

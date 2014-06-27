@@ -51,13 +51,20 @@ class @TriGrid
   _centerLength: ->
     @__centerLength ||= Math.sqrt(Math.pow(@_sideLength(),2) - Math.pow(@_halfSide(), 2))
 
-  _rows: -> @options.rows || 15
-  _cols: -> @options.cols || 30
+  _rows: -> @options.rows || @two.height/@_centerLength()
+  _cols: -> @options.cols || @two.width/@_sideLength()
   _stroke: -> @options.stroke || '#555555'
 
   _init: ->
     # create triads (shapes)
-    @triads = _.flatten _.map _.range(@_rows()), (ri) =>
+    _.each @createEveryOtherTriad(), (t) => t.polygon.addTo(@_group())
+    # create look
+    @_group().noFill()
+    @_group().stroke = @_stroke()
+    @_group().lineWidth = 2
+
+  createEveryOtherTriad: ->
+    _.flatten _.map _.range(@_rows()), (ri) =>
       _.map _.range(@_cols()), (ci) =>
         # coordinates        
         x = ci*@_sideLength()
@@ -66,19 +73,7 @@ class @TriGrid
         # shape / polygon object
         t = new Triad({sideLength: @_sideLength()})
         t.polygon.translation.set(x,y)
-        t.polygon.addTo(@_group())
         t
-
-    @_group().noFill()
-    @_group().stroke = @_stroke()
-    @_group().lineWidth = 2
-
-    @triads[310].polygon
-
-  _coordinatesToIndex: (x,y) -> y * @_cols() + x
-
-  getTriad: (x,y) ->
-    @triads[@_coordinatesToIndex(x,y)]
 
   squarePolygon: (x,y,w,h) ->
     ps = new PerspectiveSquare({sideLength: @_sideLength()})
@@ -86,15 +81,12 @@ class @TriGrid
     ps.polygon.stroke = @_stroke()
     ps.polygon
 
-
 class @TriGridOps
   constructor: (_opts) ->
     @options = _opts
     @target = @options.target || @options.tri_grid || @options.trigrid || new TriGrid({two: @options.two})
-    @lonelyTravelerTween(5).delay(320).start()
-    @lonelyTravelerTween(6).delay(160).start()
-    console.log @lonelyTravelerTween(7).start()
-    
+    @lonelyTravelerTween(10).delay(50).start()
+
   lonelyTravelerTween: (row, duration) ->
     p = @target.squarePolygon()
     # p.stroke = '#FF0000'
