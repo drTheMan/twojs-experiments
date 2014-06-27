@@ -96,6 +96,7 @@
       this._initCircles();
       this._initRingers();
       this._initArrows();
+      this._initTriGrid();
       this._initLetterbox();
       return this.two.bind('update', function() {
         return TWEEN.update();
@@ -173,6 +174,12 @@
         target: this.arrows
       });
       return this.arrows_operations.hide();
+    };
+
+    TwoApp.prototype._initTriGrid = function() {
+      return this.trigrid = new TriGridOps({
+        two: this.two
+      });
     };
 
     TwoApp.prototype._initLetterbox = function() {

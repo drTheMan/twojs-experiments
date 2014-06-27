@@ -44,6 +44,7 @@ class @TwoApp
     @_initCircles()
     @_initRingers()
     @_initArrows()
+    @_initTriGrid()
     @_initLetterbox()
     @two.bind 'update', -> TWEEN.update()
 
@@ -77,6 +78,9 @@ class @TwoApp
     @arrows = new Arrows(two: @two)
     @arrows_operations = new ArrowsOperations(target: @arrows)
     @arrows_operations.hide()
+
+  _initTriGrid: ->
+    @trigrid = new TriGridOps({two: @two})
 
   _initLetterbox: ->
     fatness = @two.height * 0.1
