@@ -23,6 +23,44 @@ class @StripeRain
     @options.rotation ||= 0
     @_init()
 
+  _init: ->
+    # put all visual stripe elements inside one main (centered) group
+    @group = @two.makeGroup()
+    @group.translation.set(@two.width/2, @two.height/2)
+    @group.translation.addSelf(@options.translation) if @options.translation
+    @group.rotation = @options.rotation if @options.rotation
+
+    # our collection of elements in the scene (+hooks to maintain them)
+    @stripes = new Backbone.Collection([])
+
+    # event listeners
+    @stripes.on('add', @_added, this)     # after a 'record' is created; create the visual elements in the Two scene automatically
+    @stripes.on('remove', (stripe) => console.log('removing stripe Two.js visual element'); @group.remove stripe.get('particle')) # when a stripe 'dies', also remove it's visual elements
+    @stripes.on('change:alive', @_onAliveChange, this)
+    @two.bind('update', @_update, this) # keep updating the scene
+
+    # create initial stripes
+    _.each _.range(@options.startAmount || 1), (i) => @addOne();
+
+  destroy: ->
+    # first remove event listeners
+    @stripes.off()
+    @two.off('update', @_update)
+
+    # this is probably not necessary, as we're already removing the entire group
+    # but let's be thorough
+    if @stripes
+      @stripes.each (stripe) -> stripe.destroy()
+      @stripes = undefined
+
+    if @two && @group
+      @two.remove(@group)
+
+  _update: (frameCount) ->
+    @stripes.each (stripe,col) -> stripe.update()
+
+  addOne: -> @stripes.add(new Stripe(@getNewStripeData()))
+
   getNewStripeData: ->
     # minimum size is the diagonal of the scene
     @minSize ||= Math.sqrt(Math.pow(@two.width,2), Math.pow(@two.height,2))
@@ -36,32 +74,9 @@ class @StripeRain
 
     { x: pos, y: -size, width: w, height: size }
 
-  addOne: ->
-    @stripes.add(new Stripe(@getNewStripeData()))
-
   getAllParticles: ->
     @stripes.map (stripe) -> stripe.get('particle')
 
-  _init: ->
-    # our collection of elements in the scene (+hooks to maintain them)
-    @stripes = new Backbone.Collection([])
-    @stripes.on('add', @_added, this)     # after a 'record' is created; create the visual elements in the Two scene automatically
-    @stripes.on('remove', (stripe) => @group.remove stripe.get('particle')) # when a stripe 'dies', also remove it's visual elements
-    @stripes.on('change:alive', @_onAliveChange, this)
-    @two.bind('update', @_update, this) # keep updating the scene
-
-    # put all visual stripe elements inside one main (centered) group
-    @group = @two.makeGroup()
-    @group.translation.set(@two.width/2, @two.height/2)
-    @group.translation.addSelf(@options.translation) if @options.translation
-    @group.rotation = @options.rotation if @options.rotation
-
-    # start by adding one stripe
-    _.each _.range(@options.startAmount || 1), (i) =>
-      @addOne();
-
-  _update: (frameCount) ->
-    @stripes.each (stripe,col) -> stripe.update()
 
   # this method creates the visual two elements (rectangles) for each stripe Model
   _added: (obj) ->

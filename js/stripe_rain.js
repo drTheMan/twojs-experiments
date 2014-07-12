@@ -54,6 +54,53 @@
       this._init();
     }
 
+    StripeRain.prototype._init = function() {
+      var _this = this;
+      this.group = this.two.makeGroup();
+      this.group.translation.set(this.two.width / 2, this.two.height / 2);
+      if (this.options.translation) {
+        this.group.translation.addSelf(this.options.translation);
+      }
+      if (this.options.rotation) {
+        this.group.rotation = this.options.rotation;
+      }
+      this.stripes = new Backbone.Collection([]);
+      this.stripes.on('add', this._added, this);
+      this.stripes.on('remove', function(stripe) {
+        console.log('removing stripe Two.js visual element');
+        return _this.group.remove(stripe.get('particle'));
+      });
+      this.stripes.on('change:alive', this._onAliveChange, this);
+      this.two.bind('update', this._update, this);
+      return _.each(_.range(this.options.startAmount || 1), function(i) {
+        return _this.addOne();
+      });
+    };
+
+    StripeRain.prototype.destroy = function() {
+      this.stripes.off();
+      this.two.off('update', this._update);
+      if (this.stripes) {
+        this.stripes.each(function(stripe) {
+          return stripe.destroy();
+        });
+        this.stripes = void 0;
+      }
+      if (this.two && this.group) {
+        return this.two.remove(this.group);
+      }
+    };
+
+    StripeRain.prototype._update = function(frameCount) {
+      return this.stripes.each(function(stripe, col) {
+        return stripe.update();
+      });
+    };
+
+    StripeRain.prototype.addOne = function() {
+      return this.stripes.add(new Stripe(this.getNewStripeData()));
+    };
+
     StripeRain.prototype.getNewStripeData = function() {
       var pos, size, w;
       this.minSize || (this.minSize = Math.sqrt(Math.pow(this.two.width, 2), Math.pow(this.two.height, 2)));
@@ -69,41 +116,9 @@
       };
     };
 
-    StripeRain.prototype.addOne = function() {
-      return this.stripes.add(new Stripe(this.getNewStripeData()));
-    };
-
     StripeRain.prototype.getAllParticles = function() {
       return this.stripes.map(function(stripe) {
         return stripe.get('particle');
-      });
-    };
-
-    StripeRain.prototype._init = function() {
-      var _this = this;
-      this.stripes = new Backbone.Collection([]);
-      this.stripes.on('add', this._added, this);
-      this.stripes.on('remove', function(stripe) {
-        return _this.group.remove(stripe.get('particle'));
-      });
-      this.stripes.on('change:alive', this._onAliveChange, this);
-      this.two.bind('update', this._update, this);
-      this.group = this.two.makeGroup();
-      this.group.translation.set(this.two.width / 2, this.two.height / 2);
-      if (this.options.translation) {
-        this.group.translation.addSelf(this.options.translation);
-      }
-      if (this.options.rotation) {
-        this.group.rotation = this.options.rotation;
-      }
-      return _.each(_.range(this.options.startAmount || 1), function(i) {
-        return _this.addOne();
-      });
-    };
-
-    StripeRain.prototype._update = function(frameCount) {
-      return this.stripes.each(function(stripe, col) {
-        return stripe.update();
       });
     };
 

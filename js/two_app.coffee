@@ -55,8 +55,10 @@ class @TwoApp
     @two.add(bg)
 
   _toggleStripes: ->
+    # destroy objects
     if @_stripeRains
-      console.log 'TODO: disable Stripe Rains'
+      _.each @_stripeRains, (stripeRain) -> stripeRain.destroy()
+      @_stripeRains = undefined
       return
 
     # create stripe objects

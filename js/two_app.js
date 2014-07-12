@@ -118,7 +118,10 @@
     TwoApp.prototype._toggleStripes = function() {
       var _this = this;
       if (this._stripeRains) {
-        console.log('TODO: disable Stripe Rains');
+        _.each(this._stripeRains, function(stripeRain) {
+          return stripeRain.destroy();
+        });
+        this._stripeRains = void 0;
         return;
       }
       this._stripeRains = [
