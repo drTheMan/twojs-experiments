@@ -49,6 +49,11 @@
           return _this.trigger('scale');
         }
       }, 'Rings');
+      folder.add({
+        Traveler: function() {
+          return _this.trigger('traveler');
+        }
+      }, 'Traveler');
       return folder.open();
     };
 
@@ -82,6 +87,9 @@
       this.app_ui.on('toggleStripes', function() {
         return _this._toggleStripes();
       });
+      this.app_ui.on('toggleTriGrid', function() {
+        return _this._toggleTriGrid();
+      });
       this.app_ui.on('shutter', function() {
         return _this.circle_closer_operations.shutter();
       });
@@ -90,17 +98,23 @@
           spirality: 200
         });
       });
-      return this.app_ui.on('scale', function() {
+      this.app_ui.on('scale', function() {
         return _this.ringer_operations.scale();
+      });
+      return this.app_ui.on('traveler', function() {
+        if (_this._triGridOps) {
+          return _this._triGridOps.lonelyTravelerTween(10).delay(50).start();
+        }
       });
     };
 
     TwoApp.prototype._initScene = function() {
       this._initBG();
+      this._toggleStripes();
       this._initCircles();
       this._initRingers();
       this._initArrows();
-      this._initTriGrid();
+      this._toggleTriGrid();
       this._initLetterbox();
       return this.two.bind('update', function() {
         return TWEEN.update();
@@ -198,8 +212,13 @@
       return this.arrows_operations.hide();
     };
 
-    TwoApp.prototype._initTriGrid = function() {
-      return this.trigrid = new TriGridOps({
+    TwoApp.prototype._toggleTriGrid = function() {
+      if (this._triGridOps) {
+        this._triGridOps.target.destroy();
+        this._triGridOps = void 0;
+        return;
+      }
+      return this._triGridOps = new TriGridOps({
         two: this.two
       });
     };

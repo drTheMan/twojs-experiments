@@ -30,18 +30,31 @@ class PerspectiveSquare extends Triad
   anchor4: -> new Two.Anchor -@_sideLength(), 0
   anchors: -> [@anchor1(), @anchor2(), @anchor3(), @anchor4()]
 
-
-class @TriGrid
+class TriGrid extends Backbone.Model
   constructor: (_opts) ->
     @options = _opts
     @two = @options.two
     @_init()
 
-  _group: ->
-    return @group if @group
+  _init: ->
+    # create group
     @group = @two.makeGroup()
     @group.translation.set(0,0)
-    return @group
+
+    # create triads (shapes)
+    _.each @createEveryOtherTriad(), (t) => t.polygon.addTo(@group)
+
+    # create look
+    @group.noFill()
+    @group.stroke = @_stroke()
+    @group.lineWidth = 2
+
+  destroy: ->
+    @trigger 'destroy'
+
+    # remove group containing all triads
+    @two.remove @group
+    @group = undefined
 
   _sideLength: ->
     @options.sideLength || 50
@@ -55,14 +68,6 @@ class @TriGrid
   _rows: -> @options.rows || @two.height/@_centerLength()
   _cols: -> @options.cols || @two.width/@_sideLength()
   _stroke: -> @options.stroke || '#555555'
-
-  _init: ->
-    # create triads (shapes)
-    _.each @createEveryOtherTriad(), (t) => t.polygon.addTo(@_group())
-    # create look
-    @_group().noFill()
-    @_group().stroke = @_stroke()
-    @_group().lineWidth = 2
 
   createEveryOtherTriad: ->
     _.flatten _.map _.range(@_rows()), (ri) =>
@@ -82,22 +87,26 @@ class @TriGrid
     ps.polygon.stroke = @_stroke()
     ps.polygon
 
-class @TriGridOps
+class @TriGridOps extends Backbone.Model
   constructor: (_opts) ->
     @options = _opts
     @target = @options.target || @options.tri_grid || @options.trigrid || new TriGrid({two: @options.two})
-    @lonelyTravelerTween(10).delay(50).start()
+
+    # event listener; when a traveler tween completes, remove its visual element from the scene
+    @on 'travelerComplete', ((tween, polygon) -> @target.two.remove(polygon)), this
 
   lonelyTravelerTween: (row, duration) ->
+    # create traveler visual element
     p = @target.squarePolygon()
     # p.stroke = '#FF0000'
     p.translation.set -10, @target._centerLength()*row
-    p.addTo(@target._group())
+    p.addTo @target.group
     duration = 10000 if duration == undefined
 
-    new TWEEN.Tween(p.translation)
+    that = this
+    tween = new TWEEN.Tween(p.translation)
       .to({x: @target.two.width+100}, duration)
-        .easing( TWEEN.Easing.Linear.None )
-        .onComplete =>
-          console.log 'lonely traveler completed'
-          @target.two.remove(p)
+      .easing( TWEEN.Easing.Linear.None )
+
+    tween.onComplete =>
+      @trigger 'travelerComplete', tween, p

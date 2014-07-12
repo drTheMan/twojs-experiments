@@ -16,6 +16,7 @@ class @AppUi extends Backbone.Model
     folder.add({Shutter: => @trigger 'shutter'}, 'Shutter')
     folder.add({Arrows: => @trigger 'arrows'}, 'Arrows')
     folder.add({Rings: => @trigger 'scale'}, 'Rings')
+    folder.add({Traveler: => @trigger 'traveler'}, 'Traveler')
     folder.open()
 
 class @TwoApp
@@ -34,17 +35,19 @@ class @TwoApp
     @app_ui = new AppUi()
 
     @app_ui.on 'toggleStripes', => @_toggleStripes()
+    @app_ui.on 'toggleTriGrid', => @_toggleTriGrid()
     @app_ui.on 'shutter', => @circle_closer_operations.shutter()
     @app_ui.on 'arrows', => @arrows_operations.move_out({spirality: 200})
     @app_ui.on 'scale', => @ringer_operations.scale()
+    @app_ui.on 'traveler', => @_triGridOps.lonelyTravelerTween(10).delay(50).start() if @_triGridOps
 
   _initScene: ->
     @_initBG()
-    # @_toggleStripes()
+    @_toggleStripes()
     @_initCircles()
     @_initRingers()
     @_initArrows()
-    @_initTriGrid()
+    @_toggleTriGrid()
     @_initLetterbox()
     @two.bind 'update', -> TWEEN.update()
 
@@ -91,8 +94,13 @@ class @TwoApp
     @arrows_operations = new ArrowsOperations(target: @arrows)
     @arrows_operations.hide()
 
-  _initTriGrid: ->
-    @trigrid = new TriGridOps({two: @two})
+  _toggleTriGrid: ->
+    if @_triGridOps
+      @_triGridOps.target.destroy()
+      @_triGridOps = undefined
+      return
+
+    @_triGridOps = new TriGridOps({two: @two})
 
   _initLetterbox: ->
     fatness = @two.height * 0.1
