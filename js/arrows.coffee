@@ -1,4 +1,4 @@
-class @Arrows
+class @Arrows extends Backbone.Model
   constructor: (_opts) ->
     @options = _opts
     @two = @options.two
@@ -26,6 +26,15 @@ class @Arrows
     @_group().noStroke()
     # @_group().opacity = 0.8
 
+    # create event listeners
+    @arrows.on 'destroy', ((arrow) -> @two.remove(arrow.get('polygon'))), this
+
+  destroy: ->
+    @trigger 'destroy'
+    @arrows.each (arrow) -> arrow.destroy()
+    @two.remove @group if @group
+    @arrows = @group = undefined
+
   _initArrow: (rotation) ->
     points = [
       new Two.Anchor(0, 15),
@@ -45,6 +54,7 @@ class @Arrows
 class @ArrowsOperations
   constructor: (opts) ->
     @options = opts
+    @target().on 'destroy', -> console.log("TODO: destroy all ArrowsOperations' tweens")
 
   target: ->
     @options.target || @options.circle_closer

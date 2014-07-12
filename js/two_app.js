@@ -128,9 +128,11 @@
         }
       });
       this.app_ui.on('arrows', function() {
-        return _this.arrows_operations.move_out({
-          spirality: 200
-        });
+        if (_this.arrows_operations) {
+          return _this.arrows_operations.move_out({
+            spirality: 200
+          });
+        }
       });
       this.app_ui.on('scale', function() {
         return _this.ringer_operations.scale();
@@ -245,6 +247,11 @@
     };
 
     TwoApp.prototype._toggleArrows = function() {
+      if (this.arrows) {
+        this.arrows.destroy();
+        this.arrows = this.arrows_operations = void 0;
+        return;
+      }
       this.arrows = new Arrows({
         two: this.two
       });

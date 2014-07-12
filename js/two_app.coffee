@@ -46,7 +46,7 @@ class @TwoApp
     @app_ui.on 'toggleLetterbox', => @_toggleLetterbox()
 
     @app_ui.on 'shutter', => @circle_closer_operations.shutter() if @circle_closer_operations
-    @app_ui.on 'arrows', => @arrows_operations.move_out({spirality: 200})
+    @app_ui.on 'arrows', => @arrows_operations.move_out({spirality: 200}) if @arrows_operations
     @app_ui.on 'scale', => @ringer_operations.scale()
     @app_ui.on 'traveler', => @_triGridOps.lonelyTravelerTween(10).delay(50).start() if @_triGridOps
 
@@ -111,6 +111,11 @@ class @TwoApp
     @ringer_operations.rotate()
 
   _toggleArrows: ->
+    if @arrows
+      @arrows.destroy()
+      @arrows = @arrows_operations = undefined
+      return
+
     @arrows = new Arrows(two: @two)
     @arrows_operations = new ArrowsOperations(target: @arrows)
     @arrows_operations.hide()
