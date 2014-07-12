@@ -1,4 +1,4 @@
-class @RingerPart
+class RingerPart
   constructor: (_opts) ->
     @options = _opts
     @two = @options.two
@@ -6,6 +6,11 @@ class @RingerPart
 
   _init: ->
     @polygon = @_initPolygon()
+
+  destroy: ->
+    @two.remove @polygon
+    @two.remove @group if @group
+    @polygon = @group = undefined
 
   _radius: ->
     @options.radius || _.min([@two.width, @two.height])/2
@@ -24,7 +29,6 @@ class @RingerPart
     @group = @two.makeGroup()
     @group.translation.set(@two.width/2, @two.height/2)
     return @group
-
 
   _initPolygon: ->
     rotation = @options.rotation #|| Math.PI*0.8 # if rotation == undefined
@@ -50,8 +54,7 @@ class @RingerPart
     polygon.fill = @_color()
     polygon.addTo(@_group())
 
-
-class @Ringer
+class @Ringer extends Backbone.Model
   constructor: (_opts) ->
     @options = _opts
     @two = @options.two
@@ -80,9 +83,15 @@ class @Ringer
         color: _.sample(@_colors())
       })
 
+  destroy: ->
+    @trigger 'destroy'
+    _.each @ringer_parts, (part) -> part.destroy()
+    @ringer_parts = undefined
+
 class @RingerOperations
   constructor: (opts) ->
     @options = opts
+    @target().on 'destroy', -> console.log("TODO: RingerOperations' tweens")
 
   target: ->
     @options.target || @options.ringer

@@ -40,7 +40,7 @@ class @TwoApp
 
     @app_ui.on 'toggleStripes', => @_toggleStripes()
     @app_ui.on 'toggleCircles', => @_toggleCircles()
-    @app_ui.on 'toggleRings', => @_toggleRings()
+    @app_ui.on 'toggleRings', => @_toggleRingers()
     @app_ui.on 'toggleArrows', => @_toggleArrows()
     @app_ui.on 'toggleTriGrid', => @_toggleTriGrid()
     @app_ui.on 'toggleLetterbox', => @_toggleLetterbox()
@@ -100,6 +100,11 @@ class @TwoApp
     @permanent_circle_operations.open(-1)
 
   _toggleRingers: ->
+    if @ringer
+      @ringer.destroy()
+      @ringer = @ringer_operations = undefined
+      return
+
     minRadius = _.min([@two.width, @two.height])*0.6+10
     @ringer = new Ringer({two: @two, minRadius: minRadius, maxRadius: minRadius+400, minThickness: 30, maxThickness: 100})
     @ringer_operations = new RingerOperations({target: @ringer})

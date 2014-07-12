@@ -111,7 +111,7 @@
         return _this._toggleCircles();
       });
       this.app_ui.on('toggleRings', function() {
-        return _this._toggleRings();
+        return _this._toggleRingers();
       });
       this.app_ui.on('toggleArrows', function() {
         return _this._toggleArrows();
@@ -225,6 +225,11 @@
 
     TwoApp.prototype._toggleRingers = function() {
       var minRadius;
+      if (this.ringer) {
+        this.ringer.destroy();
+        this.ringer = this.ringer_operations = void 0;
+        return;
+      }
       minRadius = _.min([this.two.width, this.two.height]) * 0.6 + 10;
       this.ringer = new Ringer({
         two: this.two,
