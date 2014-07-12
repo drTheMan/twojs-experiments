@@ -5,13 +5,18 @@ class @AppUi extends Backbone.Model
 
   _initGui: ->
     @gui = new dat.GUI() # ({autoPlace:true});
+
+    folder = @gui.addFolder 'Elements'
+    folder.add({Stripes: => @trigger 'toggleStripes'}, 'Stripes')
+    folder.add({TriGrid: => @trigger 'toggleTriGrid'}, 'TriGrid')
+    folder.open()
+
     folder = @gui.addFolder 'Actions'
     folder.add({Shake: => @trigger 'shake'}, 'Shake')
     folder.add({Shutter: => @trigger 'shutter'}, 'Shutter')
     folder.add({Arrows: => @trigger 'arrows'}, 'Arrows')
     folder.add({Rings: => @trigger 'scale'}, 'Rings')
     folder.open()
-
 
 class @TwoApp
   constructor: (_opts) ->
@@ -28,19 +33,14 @@ class @TwoApp
   _initUI: ->
     @app_ui = new AppUi()
 
-    @app_ui.on 'shake', =>
-      all_particles = _.flatten(_.map(@stripes, (stripe) -> stripe.getAllParticles()))
-      @operations.add(new WiggleOperation({particles: all_particles, strength: 10+Math.random()*10}))
-
+    @app_ui.on 'toggleStripes', => @_toggleStripes()
     @app_ui.on 'shutter', => @circle_closer_operations.shutter()
-
     @app_ui.on 'arrows', => @arrows_operations.move_out({spirality: 200})
-
     @app_ui.on 'scale', => @ringer_operations.scale()
 
   _initScene: ->
     @_initBG()
-    # @_initStripes()
+    # @_toggleStripes()
     @_initCircles()
     @_initRingers()
     @_initArrows()
@@ -54,11 +54,21 @@ class @TwoApp
     bg.noStroke()
     @two.add(bg)
 
-  _initStripes: ->
-    @stripes = [
+  _toggleStripes: ->
+    if @_stripeRains
+      console.log 'TODO: disable Stripe Rains'
+      return
+
+    # create stripe objects
+    @_stripeRains = [
       new StripeRain({two: @two, translation: new Two.Vector(-@two.width/2, 0), fatness: 15, rotation: -0.3, shadowOffset: 22, startAmount: 10})
       new StripeRain({two: @two, translation: new Two.Vector(@two.width/2, 0), rotation: 0.3 + Math.PI, shadowOffset: -22, startAmount: 10})
     ]
+
+    # create UI event hooks
+    @app_ui.on 'shake', =>
+      all_particles = _.flatten(_.map(@_stripeRains, (stripe) -> stripe.getAllParticles()))
+      @operations.add(new WiggleOperation({particles: all_particles, strength: 10+Math.random()*10}))
 
   _initCircles: ->
     @circle_closer = new CircleCloser({two: @two, color: '#F3CB5A', radius: 200})
@@ -133,7 +143,7 @@ class @TwoApp
   _mouseMove: (event) =>
     if @lastMouseX && @lastMouseY && @operations.length < 20
       v = new Two.Vector(event.pageX - @lastMouseX, event.pageY - @lastMouseY)
-      all_particles = _.flatten(_.map(@stripes, (stripe) -> stripe.getAllParticles()))
+      all_particles = _.flatten(_.map(@_stripesRains, (stripe) -> stripe.getAllParticles()))
       @operations.add(new WiggleOperation({particles: all_particles, strength: v.length()*0.03}))
 
     @lastMouseX = event.pageX

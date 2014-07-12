@@ -16,6 +16,18 @@
       var folder,
         _this = this;
       this.gui = new dat.GUI();
+      folder = this.gui.addFolder('Elements');
+      folder.add({
+        Stripes: function() {
+          return _this.trigger('toggleStripes');
+        }
+      }, 'Stripes');
+      folder.add({
+        TriGrid: function() {
+          return _this.trigger('toggleTriGrid');
+        }
+      }, 'TriGrid');
+      folder.open();
       folder = this.gui.addFolder('Actions');
       folder.add({
         Shake: function() {
@@ -67,15 +79,8 @@
     TwoApp.prototype._initUI = function() {
       var _this = this;
       this.app_ui = new AppUi();
-      this.app_ui.on('shake', function() {
-        var all_particles;
-        all_particles = _.flatten(_.map(_this.stripes, function(stripe) {
-          return stripe.getAllParticles();
-        }));
-        return _this.operations.add(new WiggleOperation({
-          particles: all_particles,
-          strength: 10 + Math.random() * 10
-        }));
+      this.app_ui.on('toggleStripes', function() {
+        return _this._toggleStripes();
       });
       this.app_ui.on('shutter', function() {
         return _this.circle_closer_operations.shutter();
@@ -110,8 +115,13 @@
       return this.two.add(bg);
     };
 
-    TwoApp.prototype._initStripes = function() {
-      return this.stripes = [
+    TwoApp.prototype._toggleStripes = function() {
+      var _this = this;
+      if (this._stripeRains) {
+        console.log('TODO: disable Stripe Rains');
+        return;
+      }
+      this._stripeRains = [
         new StripeRain({
           two: this.two,
           translation: new Two.Vector(-this.two.width / 2, 0),
@@ -127,6 +137,16 @@
           startAmount: 10
         })
       ];
+      return this.app_ui.on('shake', function() {
+        var all_particles;
+        all_particles = _.flatten(_.map(_this._stripeRains, function(stripe) {
+          return stripe.getAllParticles();
+        }));
+        return _this.operations.add(new WiggleOperation({
+          particles: all_particles,
+          strength: 10 + Math.random() * 10
+        }));
+      });
     };
 
     TwoApp.prototype._initCircles = function() {
@@ -253,7 +273,7 @@
       var all_particles, v;
       if (this.lastMouseX && this.lastMouseY && this.operations.length < 20) {
         v = new Two.Vector(event.pageX - this.lastMouseX, event.pageY - this.lastMouseY);
-        all_particles = _.flatten(_.map(this.stripes, function(stripe) {
+        all_particles = _.flatten(_.map(this._stripesRains, function(stripe) {
           return stripe.getAllParticles();
         }));
         this.operations.add(new WiggleOperation({

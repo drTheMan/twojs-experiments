@@ -1,4 +1,4 @@
-class @Triad
+class Triad
   constructor: (_opts) ->
     @options = _opts
     @_init()
@@ -23,12 +23,13 @@ class @Triad
   anchor3: -> new Two.Anchor -@_halfSide(), @_centerLength()
   anchors: -> [@anchor1(), @anchor2(), @anchor3()]
 
-class @PerspectiveSquare extends @Triad
+class PerspectiveSquare extends Triad
   _createPolygon: ->
     new Two.Polygon(@anchors(), true, false)
 
   anchor4: -> new Two.Anchor -@_sideLength(), 0
   anchors: -> [@anchor1(), @anchor2(), @anchor3(), @anchor4()]
+
 
 class @TriGrid
   constructor: (_opts) ->
