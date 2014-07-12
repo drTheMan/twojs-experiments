@@ -23,10 +23,30 @@
         }
       }, 'Stripes');
       folder.add({
+        Circles: function() {
+          return _this.trigger('toggleCircles');
+        }
+      }, 'Circles');
+      folder.add({
+        Rings: function() {
+          return _this.trigger('toggleRings');
+        }
+      }, 'Rings');
+      folder.add({
+        Arrows: function() {
+          return _this.trigger('toggleArrows');
+        }
+      }, 'Arrows');
+      folder.add({
         TriGrid: function() {
           return _this.trigger('toggleTriGrid');
         }
       }, 'TriGrid');
+      folder.add({
+        Letterbox: function() {
+          return _this.trigger('toggleLetterbox');
+        }
+      }, 'Letterbox');
       folder.open();
       folder = this.gui.addFolder('Actions');
       folder.add({
@@ -87,11 +107,25 @@
       this.app_ui.on('toggleStripes', function() {
         return _this._toggleStripes();
       });
+      this.app_ui.on('toggleCircles', function() {
+        return _this._toggleCircles();
+      });
+      this.app_ui.on('toggleRings', function() {
+        return _this._toggleRings();
+      });
+      this.app_ui.on('toggleArrows', function() {
+        return _this._toggleArrows();
+      });
       this.app_ui.on('toggleTriGrid', function() {
         return _this._toggleTriGrid();
       });
+      this.app_ui.on('toggleLetterbox', function() {
+        return _this._toggleLetterbox();
+      });
       this.app_ui.on('shutter', function() {
-        return _this.circle_closer_operations.shutter();
+        if (_this.circle_closer_operations) {
+          return _this.circle_closer_operations.shutter();
+        }
       });
       this.app_ui.on('arrows', function() {
         return _this.arrows_operations.move_out({
@@ -111,11 +145,8 @@
     TwoApp.prototype._initScene = function() {
       this._initBG();
       this._toggleStripes();
-      this._initCircles();
-      this._initRingers();
-      this._initArrows();
-      this._toggleTriGrid();
-      this._initLetterbox();
+      this._toggleCircles();
+      this._toggleLetterbox();
       return this.two.bind('update', function() {
         return TWEEN.update();
       });
@@ -166,7 +197,13 @@
       });
     };
 
-    TwoApp.prototype._initCircles = function() {
+    TwoApp.prototype._toggleCircles = function() {
+      if (this.circle_closer) {
+        this.circle_closer.destroy();
+        this.permanent_circle.destroy();
+        this.circle_closer = this.permanent_circle = this.circle_closer_operations = this.permanent_circle_operations = void 0;
+        return;
+      }
       this.circle_closer = new CircleCloser({
         two: this.two,
         color: '#F3CB5A',
@@ -186,7 +223,7 @@
       return this.permanent_circle_operations.open(-1);
     };
 
-    TwoApp.prototype._initRingers = function() {
+    TwoApp.prototype._toggleRingers = function() {
       var minRadius;
       minRadius = _.min([this.two.width, this.two.height]) * 0.6 + 10;
       this.ringer = new Ringer({
@@ -202,7 +239,7 @@
       return this.ringer_operations.rotate();
     };
 
-    TwoApp.prototype._initArrows = function() {
+    TwoApp.prototype._toggleArrows = function() {
       this.arrows = new Arrows({
         two: this.two
       });
@@ -223,7 +260,7 @@
       });
     };
 
-    TwoApp.prototype._initLetterbox = function() {
+    TwoApp.prototype._toggleLetterbox = function() {
       var bar, fatness;
       fatness = this.two.height * 0.1;
       bar = this.two.makeRectangle(this.two.width / 2, fatness / 2, this.two.width, fatness);
@@ -274,8 +311,8 @@
           this.two.pause();
         }
       }
-      if (e.keyCode === 67 && this.circle_closer) {
-        this.circle_closer_operations.shutter();
+      if (e.keyCode === 67) {
+        this.app_ui.trigger('shutter');
       }
       if (e.keyCode === 49) {
         this.app_ui.trigger('shake');

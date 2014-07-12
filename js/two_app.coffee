@@ -8,7 +8,11 @@ class @AppUi extends Backbone.Model
 
     folder = @gui.addFolder 'Elements'
     folder.add({Stripes: => @trigger 'toggleStripes'}, 'Stripes')
+    folder.add({Circles: => @trigger 'toggleCircles'}, 'Circles')
+    folder.add({Rings: => @trigger 'toggleRings'}, 'Rings')
+    folder.add({Arrows: => @trigger 'toggleArrows'}, 'Arrows')
     folder.add({TriGrid: => @trigger 'toggleTriGrid'}, 'TriGrid')
+    folder.add({Letterbox: => @trigger 'toggleLetterbox'}, 'Letterbox')
     folder.open()
 
     folder = @gui.addFolder 'Actions'
@@ -35,8 +39,13 @@ class @TwoApp
     @app_ui = new AppUi()
 
     @app_ui.on 'toggleStripes', => @_toggleStripes()
+    @app_ui.on 'toggleCircles', => @_toggleCircles()
+    @app_ui.on 'toggleRings', => @_toggleRings()
+    @app_ui.on 'toggleArrows', => @_toggleArrows()
     @app_ui.on 'toggleTriGrid', => @_toggleTriGrid()
-    @app_ui.on 'shutter', => @circle_closer_operations.shutter()
+    @app_ui.on 'toggleLetterbox', => @_toggleLetterbox()
+
+    @app_ui.on 'shutter', => @circle_closer_operations.shutter() if @circle_closer_operations
     @app_ui.on 'arrows', => @arrows_operations.move_out({spirality: 200})
     @app_ui.on 'scale', => @ringer_operations.scale()
     @app_ui.on 'traveler', => @_triGridOps.lonelyTravelerTween(10).delay(50).start() if @_triGridOps
@@ -44,11 +53,11 @@ class @TwoApp
   _initScene: ->
     @_initBG()
     @_toggleStripes()
-    @_initCircles()
-    @_initRingers()
-    @_initArrows()
-    @_toggleTriGrid()
-    @_initLetterbox()
+    @_toggleCircles()
+    # @_toggleRingers()
+    # @_toggleArrows()
+    # @_toggleTriGrid()
+    @_toggleLetterbox()
     @two.bind 'update', -> TWEEN.update()
 
   _initBG: ->
@@ -75,7 +84,14 @@ class @TwoApp
       all_particles = _.flatten(_.map(@_stripeRains, (stripe) -> stripe.getAllParticles()))
       @operations.add(new WiggleOperation({particles: all_particles, strength: 10+Math.random()*10}))
 
-  _initCircles: ->
+  _toggleCircles: ->
+    if @circle_closer
+      @circle_closer.destroy()
+      @permanent_circle.destroy()
+      # no need to do a destroy on the operations objects as they destroy automatically when their target is destroyed
+      @circle_closer = @permanent_circle = @circle_closer_operations = @permanent_circle_operations = undefined
+      return
+
     @circle_closer = new CircleCloser({two: @two, color: '#F3CB5A', radius: 200})
     @circle_closer_operations = new CircleCloserOperations({target: @circle_closer})
     @circle_closer_operations.open()
@@ -83,13 +99,13 @@ class @TwoApp
     @permanent_circle_operations = new CircleCloserOperations({target: @permanent_circle})
     @permanent_circle_operations.open(-1)
 
-  _initRingers: ->
+  _toggleRingers: ->
     minRadius = _.min([@two.width, @two.height])*0.6+10
     @ringer = new Ringer({two: @two, minRadius: minRadius, maxRadius: minRadius+400, minThickness: 30, maxThickness: 100})
     @ringer_operations = new RingerOperations({target: @ringer})
     @ringer_operations.rotate()
 
-  _initArrows: ->
+  _toggleArrows: ->
     @arrows = new Arrows(two: @two)
     @arrows_operations = new ArrowsOperations(target: @arrows)
     @arrows_operations.hide()
@@ -102,7 +118,7 @@ class @TwoApp
 
     @_triGridOps = new TriGridOps({two: @two})
 
-  _initLetterbox: ->
+  _toggleLetterbox: ->
     fatness = @two.height * 0.1
     bar = @two.makeRectangle(@two.width/2, fatness/2, @two.width, fatness)
     bar.fill = '#000000'
@@ -142,8 +158,7 @@ class @TwoApp
       else
         @two.pause()
 
-    if e.keyCode == 67 && @circle_closer # 'c'
-      @circle_closer_operations.shutter()
+    @app_ui.trigger 'shutter' if e.keyCode == 67 # 'c'
 
     @app_ui.trigger('shake') if e.keyCode == 49 # '1'
     @app_ui.trigger('shutter') if e.keyCode == 50 

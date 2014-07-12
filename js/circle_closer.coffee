@@ -1,8 +1,14 @@
-class @CircleCloser
+class @CircleCloser extends Backbone.Model
   constructor: (_opts) ->
     @options = _opts
     @two = @options.two
     @_init()
+
+  destroy: ->
+    @trigger 'destroy'
+    @two.remove @polygon if @polygon
+    @two.remove @polygon2 if @polygon2
+    @two.remove @group if @group
 
   _radius: ->
     @options.radius || _.min([@two.width, @two.height])/2
@@ -58,6 +64,7 @@ class @CircleCloser
 class @CircleCloserOperations
   constructor: (opts) ->
     @options = opts
+    @target().on 'destroy', -> console.log("TODO: CircleCloserOperation's tweens")
 
   target: ->
     @options.target || @options.circle_closer
