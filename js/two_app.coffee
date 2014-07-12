@@ -47,7 +47,7 @@ class @TwoApp
 
     @app_ui.on 'shutter', => @circle_closer_operations.shutter() if @circle_closer_operations
     @app_ui.on 'arrows', => @arrows_operations.move_out({spirality: 200}) if @arrows_operations
-    @app_ui.on 'scale', => @ringer_operations.scale()
+    @app_ui.on 'scale', => @ringer_operations.scale() if @ringer_operations
     @app_ui.on 'traveler', => @_triGridOps.lonelyTravelerTween(10).delay(50).start() if @_triGridOps
 
   _initScene: ->
@@ -129,16 +129,23 @@ class @TwoApp
     @_triGridOps = new TriGridOps({two: @two})
 
   _toggleLetterbox: ->
+    if @letterboxGroup
+      @two.remove @letterboxGroup
+      @letterboxGroup = undefined
+      return
+
     fatness = @two.height * 0.1
+
+    @letterboxGroup = @two.makeGroup()
+    
     bar = @two.makeRectangle(@two.width/2, fatness/2, @two.width, fatness)
-    bar.fill = '#000000'
-    bar.noStroke()
-    @two.add(bar)
+    @letterboxGroup.add(bar)
 
     bar = @two.makeRectangle(@two.width/2, @two.height-fatness/2, @two.width, fatness)
-    bar.fill = '#000000'
-    bar.noStroke()
-    @two.add(bar)
+    @letterboxGroup.add(bar)
+
+    @letterboxGroup.fill = '#000000'
+    @letterboxGroup.noStroke()
 
   _initOperations: ->
     @operations = new Backbone.Collection([])

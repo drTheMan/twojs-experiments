@@ -135,7 +135,9 @@
         }
       });
       this.app_ui.on('scale', function() {
-        return _this.ringer_operations.scale();
+        if (_this.ringer_operations) {
+          return _this.ringer_operations.scale();
+        }
       });
       return this.app_ui.on('traveler', function() {
         if (_this._triGridOps) {
@@ -274,15 +276,19 @@
 
     TwoApp.prototype._toggleLetterbox = function() {
       var bar, fatness;
+      if (this.letterboxGroup) {
+        this.two.remove(this.letterboxGroup);
+        this.letterboxGroup = void 0;
+        return;
+      }
       fatness = this.two.height * 0.1;
+      this.letterboxGroup = this.two.makeGroup();
       bar = this.two.makeRectangle(this.two.width / 2, fatness / 2, this.two.width, fatness);
-      bar.fill = '#000000';
-      bar.noStroke();
-      this.two.add(bar);
+      this.letterboxGroup.add(bar);
       bar = this.two.makeRectangle(this.two.width / 2, this.two.height - fatness / 2, this.two.width, fatness);
-      bar.fill = '#000000';
-      bar.noStroke();
-      return this.two.add(bar);
+      this.letterboxGroup.add(bar);
+      this.letterboxGroup.fill = '#000000';
+      return this.letterboxGroup.noStroke();
     };
 
     TwoApp.prototype._initOperations = function() {
