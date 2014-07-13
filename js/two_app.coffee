@@ -16,7 +16,7 @@ class @AppUi extends Backbone.Model
     folder.open()
 
     folder = @gui.addFolder 'Actions'
-    folder.add({Shake: => @trigger 'shake'}, 'Shake')
+    folder.add({Shaker: => @trigger 'shake'}, 'Shaker')
     folder.add({Shutter: => @trigger 'shutter'}, 'Shutter')
     folder.add({Arrows: => @trigger 'arrows'}, 'Arrows')
     folder.add({Rings: => @trigger 'scale'}, 'Rings')
@@ -137,7 +137,7 @@ class @TwoApp
     fatness = @two.height * 0.1
 
     @letterboxGroup = @two.makeGroup()
-    
+
     bar = @two.makeRectangle(@two.width/2, fatness/2, @two.width, fatness)
     @letterboxGroup.add(bar)
 
@@ -171,14 +171,14 @@ class @TwoApp
     if e.keyCode == 32 # SPACE
       @running = (@running == false ? true : false)
       if @running
-        @two.play() 
+        @two.play()
       else
         @two.pause()
 
     @app_ui.trigger 'shutter' if e.keyCode == 67 # 'c'
 
     @app_ui.trigger('shake') if e.keyCode == 49 # '1'
-    @app_ui.trigger('shutter') if e.keyCode == 50 
+    @app_ui.trigger('shutter') if e.keyCode == 50
     @app_ui.trigger('arrows') if e.keyCode == 51
     @app_ui.trigger('scale') if e.keyCode == 52
 
