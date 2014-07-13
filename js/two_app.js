@@ -50,10 +50,10 @@
       folder.open();
       folder = this.gui.addFolder('Actions');
       folder.add({
-        Shake: function() {
+        Shaker: function() {
           return _this.trigger('shake');
         }
-      }, 'Shake');
+      }, 'Shaker');
       folder.add({
         Shutter: function() {
           return _this.trigger('shutter');
