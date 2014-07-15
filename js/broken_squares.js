@@ -27,6 +27,18 @@
       return this.target = this.two = void 0;
     };
 
+    BrokenSquaresOps.prototype.randomBreak = function() {
+      return _.each(this.target.broken_squares, function(broken_square) {
+        return _.each(broken_square.triangles, function(triangle) {
+          if (Math.random() > 0.5) {
+            return triangle.opacity = 0.0;
+          } else {
+            return triangle.opacity = 1.0;
+          }
+        });
+      });
+    };
+
     return BrokenSquaresOps;
 
   })(Backbone.Model);
@@ -41,20 +53,51 @@
     }
 
     BrokenSquares.prototype.init = function() {
+      var _this = this;
       this.destroy();
       this.group = this.two.makeGroup();
-      this.group.translation.set(100, 100);
-      return new BrokenSquare({
-        two: this.two
-      }).group.addTo(this.group);
+      this.broken_squares = this._createBrokenSquares();
+      return _.each(this.broken_squares, function(broken_square) {
+        return broken_square.group.addTo(_this.group);
+      });
     };
 
     BrokenSquares.prototype.destroy = function() {
       this.trigger('destroy', this);
+      if (this.broken_squares) {
+        _.each(this.broken_squares, function(broken_square) {
+          return broken_square.destroy();
+        });
+        this.broken_squares = void 0;
+      }
       if (this.group) {
         this.two.remove(this.group);
         return this.group = void 0;
       }
+    };
+
+    BrokenSquares.prototype._createBrokenSquares = function() {
+      var bSquare, broken_squares, x, y;
+      broken_squares = [];
+      y = 0;
+      while (y < this.two.height) {
+        x = 0;
+        while (x < this.two.width) {
+          bSquare = new BrokenSquare({
+            two: this.two
+          });
+          bSquare.group.translation.set(x, y);
+          broken_squares = _.union(broken_squares, [bSquare]);
+          x += bSquare.width();
+        }
+        y += bSquare.height();
+      }
+      return broken_squares;
+      return [
+        new BrokenSquare({
+          two: this.two
+        })
+      ];
     };
 
     return BrokenSquares;
@@ -74,7 +117,6 @@
       var _this = this;
       this.destroy();
       this.group = this.two.makeGroup();
-      this.group.translation.set(0, 0);
       this.triangles = this._createTriangles();
       _.each(this.triangles, function(triangle) {
         return triangle.addTo(_this.group);
@@ -98,21 +140,21 @@
       }
     };
 
-    BrokenSquare.prototype._width = function() {
+    BrokenSquare.prototype.width = function() {
       return this.options.width || 100;
     };
 
-    BrokenSquare.prototype._height = function() {
+    BrokenSquare.prototype.height = function() {
       return this.options.height || 100;
     };
 
-    BrokenSquare.prototype._coords = function() {
-      return [new Two.Anchor(0, 0), new Two.Anchor(this._width() / 2, 0), new Two.Anchor(this._width(), 0), new Two.Anchor(0, this._height() / 2), new Two.Anchor(this._width() / 2, this._height() / 2), new Two.Anchor(this._width(), this._height() / 2), new Two.Anchor(0, this._height()), new Two.Anchor(this._width() / 2, this._height()), new Two.Anchor(this._width(), this._height())];
+    BrokenSquare.prototype.coords = function() {
+      return [new Two.Anchor(0, 0), new Two.Anchor(this.width() / 2, 0), new Two.Anchor(this.width(), 0), new Two.Anchor(0, this.height() / 2), new Two.Anchor(this.width() / 2, this.height() / 2), new Two.Anchor(this.width(), this.height() / 2), new Two.Anchor(0, this.height()), new Two.Anchor(this.width() / 2, this.height()), new Two.Anchor(this.width(), this.height())];
     };
 
     BrokenSquare.prototype._createTriangles = function() {
       var coords;
-      coords = this._coords();
+      coords = this.coords();
       return [new Two.Polygon([coords[0], coords[4], coords[3]], false, false), new Two.Polygon([coords[0], coords[1], coords[4]], false, false), new Two.Polygon([coords[1], coords[2], coords[4]], false, false), new Two.Polygon([coords[2], coords[4], coords[5]], false, false), new Two.Polygon([coords[3], coords[4], coords[6]], false, false), new Two.Polygon([coords[4], coords[6], coords[7]], false, false), new Two.Polygon([coords[4], coords[7], coords[8]], false, false), new Two.Polygon([coords[4], coords[5], coords[8]], false, false)];
     };
 

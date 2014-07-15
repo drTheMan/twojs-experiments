@@ -132,7 +132,7 @@
       this.app_ui.on('toggleLetterbox', function() {
         return _this._toggleLetterbox();
       });
-      this.app_ui.on('toggleLetterbox', function() {
+      this.app_ui.on('toggleBrokenSquares', function() {
         return _this._toggleBrokenSquares();
       });
       this.app_ui.on('shutter', function() {
@@ -152,9 +152,14 @@
           return _this.ringer_operations.scale();
         }
       });
-      return this.app_ui.on('traveler', function() {
+      this.app_ui.on('traveler', function() {
         if (_this._triGridOps) {
           return _this._triGridOps.lonelyTravelerTween().start();
+        }
+      });
+      return this.app_ui.on('breaksquares', function() {
+        if (_this._brokenSquaresOps) {
+          return _this._brokenSquaresOps.randomBreak();
         }
       });
     };
@@ -287,12 +292,12 @@
     };
 
     TwoApp.prototype._toggleBrokenSquares = function() {
-      if (this.__brokenSquaresOps) {
-        this.__brokenSquaresOps.destroy();
-        this.__brokenSquaresOps = void 0;
+      if (this._brokenSquaresOps) {
+        this._brokenSquaresOps.target.destroy();
+        this._brokenSquaresOps = void 0;
         return;
       }
-      return this.__brokenSquaresOps = new BrokenSquaresOps({
+      return this._brokenSquaresOps = new BrokenSquaresOps({
         two: this.two
       });
     };

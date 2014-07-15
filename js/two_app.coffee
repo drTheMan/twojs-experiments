@@ -46,12 +46,13 @@ class @TwoApp
     @app_ui.on 'toggleArrows', => @_toggleArrows()
     @app_ui.on 'toggleTriGrid', => @_toggleTriGrid()
     @app_ui.on 'toggleLetterbox', => @_toggleLetterbox()
-    @app_ui.on 'toggleLetterbox', => @_toggleBrokenSquares()
+    @app_ui.on 'toggleBrokenSquares', => @_toggleBrokenSquares()
 
     @app_ui.on 'shutter', => @circle_closer_operations.shutter() if @circle_closer_operations
     @app_ui.on 'arrows', => @arrows_operations.move_out({spirality: 200}) if @arrows_operations
     @app_ui.on 'scale', => @ringer_operations.scale() if @ringer_operations
     @app_ui.on 'traveler', => @_triGridOps.lonelyTravelerTween().start() if @_triGridOps
+    @app_ui.on 'breaksquares', => @_brokenSquaresOps.randomBreak() if @_brokenSquaresOps
 
   _initScene: ->
     @_initBG()
@@ -133,12 +134,12 @@ class @TwoApp
     @_triGridOps = new TriGridOps({two: @two})
 
   _toggleBrokenSquares: ->
-    if @__brokenSquaresOps
-      @__brokenSquaresOps.destroy()
-      @__brokenSquaresOps = undefined
+    if @_brokenSquaresOps
+      @_brokenSquaresOps.target.destroy()
+      @_brokenSquaresOps = undefined
       return
 
-    @__brokenSquaresOps = new BrokenSquaresOps({two: @two})
+    @_brokenSquaresOps = new BrokenSquaresOps({two: @two})
 
   _toggleLetterbox: ->
     if @letterboxGroup
