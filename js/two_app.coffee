@@ -12,6 +12,7 @@ class @AppUi extends Backbone.Model
     folder.add({Rings: => @trigger 'toggleRings'}, 'Rings')
     folder.add({Arrows: => @trigger 'toggleArrows'}, 'Arrows')
     folder.add({TriGrid: => @trigger 'toggleTriGrid'}, 'TriGrid')
+    folder.add({BrokenSquares: => @trigger 'toggleBrokenSquares'}, 'BrokenSquares')
     folder.add({Letterbox: => @trigger 'toggleLetterbox'}, 'Letterbox')
     folder.open()
 
@@ -21,6 +22,7 @@ class @AppUi extends Backbone.Model
     folder.add({Arrows: => @trigger 'arrows'}, 'Arrows')
     folder.add({Rings: => @trigger 'scale'}, 'Rings')
     folder.add({Traveler: => @trigger 'traveler'}, 'Traveler')
+    folder.add({BreakSquares: => @trigger 'breaksquares'}, 'BreakSquares')
     folder.open()
 
 class @TwoApp
@@ -44,19 +46,21 @@ class @TwoApp
     @app_ui.on 'toggleArrows', => @_toggleArrows()
     @app_ui.on 'toggleTriGrid', => @_toggleTriGrid()
     @app_ui.on 'toggleLetterbox', => @_toggleLetterbox()
+    @app_ui.on 'toggleLetterbox', => @_toggleBrokenSquares()
 
     @app_ui.on 'shutter', => @circle_closer_operations.shutter() if @circle_closer_operations
     @app_ui.on 'arrows', => @arrows_operations.move_out({spirality: 200}) if @arrows_operations
     @app_ui.on 'scale', => @ringer_operations.scale() if @ringer_operations
-    @app_ui.on 'traveler', => @_triGridOps.lonelyTravelerTween(10).delay(50).start() if @_triGridOps
+    @app_ui.on 'traveler', => @_triGridOps.lonelyTravelerTween().start() if @_triGridOps
 
   _initScene: ->
     @_initBG()
-    @_toggleStripes()
-    @_toggleCircles()
+    # @_toggleStripes()
+    # @_toggleCircles()
     # @_toggleRingers()
     # @_toggleArrows()
     # @_toggleTriGrid()
+    @_toggleBrokenSquares()
     @_toggleLetterbox()
     @two.bind 'update', -> TWEEN.update()
 
@@ -127,6 +131,14 @@ class @TwoApp
       return
 
     @_triGridOps = new TriGridOps({two: @two})
+
+  _toggleBrokenSquares: ->
+    if @__brokenSquaresOps
+      @__brokenSquaresOps.destroy()
+      @__brokenSquaresOps = undefined
+      return
+
+    @__brokenSquaresOps = new BrokenSquaresOps({two: @two})
 
   _toggleLetterbox: ->
     if @letterboxGroup

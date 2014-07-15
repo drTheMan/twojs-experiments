@@ -43,6 +43,11 @@
         }
       }, 'TriGrid');
       folder.add({
+        BrokenSquares: function() {
+          return _this.trigger('toggleBrokenSquares');
+        }
+      }, 'BrokenSquares');
+      folder.add({
         Letterbox: function() {
           return _this.trigger('toggleLetterbox');
         }
@@ -50,10 +55,10 @@
       folder.open();
       folder = this.gui.addFolder('Actions');
       folder.add({
-        Shake: function() {
+        Shaker: function() {
           return _this.trigger('shake');
         }
-      }, 'Shake');
+      }, 'Shaker');
       folder.add({
         Shutter: function() {
           return _this.trigger('shutter');
@@ -74,6 +79,11 @@
           return _this.trigger('traveler');
         }
       }, 'Traveler');
+      folder.add({
+        BreakSquares: function() {
+          return _this.trigger('breaksquares');
+        }
+      }, 'BreakSquares');
       return folder.open();
     };
 
@@ -122,6 +132,9 @@
       this.app_ui.on('toggleLetterbox', function() {
         return _this._toggleLetterbox();
       });
+      this.app_ui.on('toggleLetterbox', function() {
+        return _this._toggleBrokenSquares();
+      });
       this.app_ui.on('shutter', function() {
         if (_this.circle_closer_operations) {
           return _this.circle_closer_operations.shutter();
@@ -141,15 +154,14 @@
       });
       return this.app_ui.on('traveler', function() {
         if (_this._triGridOps) {
-          return _this._triGridOps.lonelyTravelerTween(10).delay(50).start();
+          return _this._triGridOps.lonelyTravelerTween().start();
         }
       });
     };
 
     TwoApp.prototype._initScene = function() {
       this._initBG();
-      this._toggleStripes();
-      this._toggleCircles();
+      this._toggleBrokenSquares();
       this._toggleLetterbox();
       return this.two.bind('update', function() {
         return TWEEN.update();
@@ -270,6 +282,17 @@
         return;
       }
       return this._triGridOps = new TriGridOps({
+        two: this.two
+      });
+    };
+
+    TwoApp.prototype._toggleBrokenSquares = function() {
+      if (this.__brokenSquaresOps) {
+        this.__brokenSquaresOps.destroy();
+        this.__brokenSquaresOps = void 0;
+        return;
+      }
+      return this.__brokenSquaresOps = new BrokenSquaresOps({
         two: this.two
       });
     };

@@ -24,9 +24,6 @@ class Triad
   anchors: -> [@anchor1(), @anchor2(), @anchor3()]
 
 class PerspectiveSquare extends Triad
-  _createPolygon: ->
-    new Two.Polygon(@anchors(), true, false)
-
   anchor4: -> new Two.Anchor -@_sideLength(), 0
   anchors: -> [@anchor1(), @anchor2(), @anchor3(), @anchor4()]
 
@@ -87,6 +84,31 @@ class TriGrid extends Backbone.Model
     ps.polygon.stroke = @_stroke()
     ps.polygon
 
+  cubePolygon: (x,y,w,h) ->
+    p1 = @squarePolygon(x,y,w,h)
+    p2 = @squarePolygon(x,y,w,h)
+    p2.rotation = Math.PI*0.67
+    p3 = @squarePolygon(x,y,w,h)
+    p3.rotation = Math.PI*0.34
+    p3.translation.x = @_sideLength()
+    g = @two.makeGroup()
+    p1.addTo g
+    p2.addTo g
+    p3.addTo g
+    return g
+
+class TriGridCoords extends Backbone.Model
+  constructor: (_opts) ->
+    @options = _opts
+
+  sideLength: -> @options.sideLength || 50
+  halfSide: -> @sideLength()/2
+  centerLength: -> @_centerLength ||= Math.sqrt(Math.pow(@_sideLength(),2) - Math.pow(@_halfSide(), 2))
+
+  cubePos: (row,col) ->
+    {x: @sideLength()*col + @halfSide() * row / 2, y: @halfSide()*row}
+
+
 class @TriGridOps extends Backbone.Model
   constructor: (_opts) ->
     @options = _opts
@@ -95,17 +117,36 @@ class @TriGridOps extends Backbone.Model
     # event listener; when a traveler tween completes, remove its visual element from the scene
     @on 'travelerComplete', ((tween, polygon) -> @target.two.remove(polygon)), this
 
-  lonelyTravelerTween: (row, duration) ->
-    # create traveler visual element
-    p = @target.squarePolygon()
-    # p.stroke = '#FF0000'
-    p.translation.set -10, @target._centerLength()*row
-    p.addTo @target.group
-    duration = 10000 if duration == undefined
 
+  lonelyTravelerTween: ->
+    coords = new TriGridCoords({sideLength: @target._sideLength()})
+
+    row = Math.floor(Math.random(@target._rows()))
+    targetRow = row
+    col = -1
+    targetCol = @target._cols()
+
+    if Math.random() > 0.5
+      col = Math.floor(Math.random(@target._cols()))
+      targetCol = col
+      row = -1
+      targetRow = @target._rows()
+
+    # create traveler visual element
+    p = @target.cubePolygon()
+    # p.stroke = '#FF0000'
+    pos = coords.cubePos(col, row)
+    p.translation.set(pos.x, pos.y)
+    p.addTo @target.group
+
+    target = coords.cubePos(targetCol, targetRow)
+
+    duration = 5000
+    console.log p.translation
+    console.log target
     that = this
     tween = new TWEEN.Tween(p.translation)
-      .to({x: @target.two.width+100}, duration)
+      .to(target, duration)
       .easing( TWEEN.Easing.Linear.None )
 
     tween.onComplete =>
