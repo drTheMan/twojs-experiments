@@ -28,7 +28,8 @@
     };
 
     BrokenSquaresOps.prototype.randomBreak = function() {
-      return _.each(this.target.broken_squares, function(broken_square) {
+      var _this = this;
+      _.each(this.target.broken_squares, function(broken_square) {
         return _.each(broken_square.triangles, function(triangle) {
           if (Math.random() > 0.5) {
             return triangle.opacity = 0.0;
@@ -37,6 +38,9 @@
           }
         });
       });
+      return setTimeout((function() {
+        return _this.randomBreak();
+      }), 3000);
     };
 
     return BrokenSquaresOps;
@@ -76,6 +80,14 @@
       }
     };
 
+    BrokenSquares.prototype.colSpacing = function() {
+      return this.options.colSpacing || 30;
+    };
+
+    BrokenSquares.prototype.rowSpacing = function() {
+      return this.options.rowSpacing || 30;
+    };
+
     BrokenSquares.prototype._createBrokenSquares = function() {
       var bSquare, broken_squares, x, y;
       broken_squares = [];
@@ -88,9 +100,9 @@
           });
           bSquare.group.translation.set(x, y);
           broken_squares = _.union(broken_squares, [bSquare]);
-          x += bSquare.width();
+          x += bSquare.width() + this.colSpacing();
         }
-        y += bSquare.height();
+        y += bSquare.height() + this.rowSpacing();
       }
       return broken_squares;
       return [
@@ -141,11 +153,11 @@
     };
 
     BrokenSquare.prototype.width = function() {
-      return this.options.width || 100;
+      return this.options.width || 50;
     };
 
     BrokenSquare.prototype.height = function() {
-      return this.options.height || 100;
+      return this.options.height || 50;
     };
 
     BrokenSquare.prototype.coords = function() {

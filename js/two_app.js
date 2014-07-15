@@ -297,9 +297,10 @@
         this._brokenSquaresOps = void 0;
         return;
       }
-      return this._brokenSquaresOps = new BrokenSquaresOps({
+      this._brokenSquaresOps = new BrokenSquaresOps({
         two: this.two
       });
+      return this._brokenSquaresOps.randomBreak();
     };
 
     TwoApp.prototype._toggleLetterbox = function() {

@@ -21,6 +21,8 @@ class @BrokenSquaresOps extends Backbone.Model
         else
           triangle.opacity = 1.0
 
+    setTimeout (=> @randomBreak()), 3000
+
 
 class BrokenSquares extends Backbone.Model
   constructor: (_opts) ->
@@ -46,6 +48,9 @@ class BrokenSquares extends Backbone.Model
       @two.remove @group
       @group = undefined
 
+  colSpacing: -> @options.colSpacing || 30
+  rowSpacing: -> @options.rowSpacing || 30
+
   _createBrokenSquares: ->
     broken_squares = []
 
@@ -56,14 +61,13 @@ class BrokenSquares extends Backbone.Model
         bSquare = new BrokenSquare(two: @two)
         bSquare.group.translation.set(x,y)
         broken_squares = _.union(broken_squares, [bSquare])
-        x += bSquare.width()
-      y += bSquare.height()
+        x += bSquare.width() + @colSpacing()
+      y += bSquare.height() + @rowSpacing()
     return broken_squares
 
 
 
     [new BrokenSquare(two: @two)]
-
 
 
 class BrokenSquare extends Backbone.Model
@@ -91,8 +95,8 @@ class BrokenSquare extends Backbone.Model
       @two.remove @group
       @group = undefined
 
-  width: -> @options.width || 100
-  height: -> @options.height || 100
+  width: -> @options.width || 50
+  height: -> @options.height || 50
 
   # 0 --- 1 --- 2
   # | \   |   / |

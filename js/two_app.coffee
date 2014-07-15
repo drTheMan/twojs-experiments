@@ -140,6 +140,7 @@ class @TwoApp
       return
 
     @_brokenSquaresOps = new BrokenSquaresOps({two: @two})
+    @_brokenSquaresOps.randomBreak()
 
   _toggleLetterbox: ->
     if @letterboxGroup
