@@ -14,7 +14,7 @@
 
     BrokenSquaresOps.prototype.init = function() {
       this.destroy();
-      this.target = this.options.target || this.options.brokenSqaures || this.options.broken_squares || new BrokenSquares({
+      this.target = this.options.target || this.options.brokenSquares || this.options.broken_squares || new BrokenSquares({
         two: this.options.two
       });
       this.two = this.target.two;
@@ -28,7 +28,7 @@
     };
 
     BrokenSquaresOps.prototype.randomBreak = function(likeliness, broken_squares) {
-      return _.each(broken_squares || this.target.broken_squares, function(broken_square) {
+      return _.each(broken_squares || this.target.broken_squares(), function(broken_square) {
         return _.each(broken_square.triangles, function(triangle) {
           if (Math.random() > (likeliness || 0.4)) {
             return triangle.opacity = 0.0;
@@ -40,15 +40,20 @@
     };
 
     BrokenSquaresOps.prototype.scrollTween = function() {
-      var height, squares, tween;
-      height = this.target.gridH() * this.target.rowH();
-      squares = this.target._createBrokenSquares(0, height - this.target.group.translation.y);
-      this.randomBreak(0.4, squares);
-      this.target.addBrokenSquares(squares);
-      console.log([this.two.height, height]);
-      return tween = new TWEEN.Tween(this.target.group.translation).to({
+      var height, row, tween;
+      height = this.target.rowH();
+      row = new BrokenSquareRow({
+        two: this.target.two,
+        size: this.target.size()
+      });
+      row.group.translation.set(0, this.target.rows.length * this.target.rowH());
+      this.target.rows.push(row);
+      this.randomBreak(0.4, row.broken_squares);
+      row.group.addTo(this.target.group);
+      tween = new TWEEN.Tween(this.target.group.translation).to({
         y: this.target.group.translation.y - height
-      }, 2500).easing(TWEEN.Easing.Linear.None);
+      }, 800).easing(TWEEN.Easing.Linear.None);
+      return tween;
     };
 
     return BrokenSquaresOps;
@@ -67,16 +72,16 @@
     BrokenSquares.prototype.init = function() {
       this.destroy();
       this.group = this.two.makeGroup();
-      return this.addBrokenSquares(this._createBrokenSquares());
+      return this.addBrokenSquareRows(this._createBrokenSquareRows());
     };
 
     BrokenSquares.prototype.destroy = function() {
       this.trigger('destroy', this);
-      if (this.broken_squares) {
-        _.each(this.broken_squares, function(broken_square) {
-          return broken_square.destroy();
+      if (this.rows) {
+        _.each(this.rows, function(row) {
+          return row.destroy();
         });
-        this.broken_squares = void 0;
+        this.rows = void 0;
       }
       if (this.group) {
         this.two.remove(this.group);
@@ -112,30 +117,33 @@
       return this.two.height / this.rowH() + 1;
     };
 
-    BrokenSquares.prototype.addBrokenSquares = function(broken_squares) {
+    BrokenSquares.prototype.broken_squares = function() {
+      return _.flatten(_.map(this.rows || [], function(row) {
+        return row.broken_squares;
+      }));
+    };
+
+    BrokenSquares.prototype.addBrokenSquareRows = function(rows) {
       var _this = this;
-      this.broken_squares || (this.broken_squares = []);
-      this.broken_squares = _.union(this.broken_squares, broken_squares);
-      return _.each(broken_squares, function(broken_square) {
-        return broken_square.group.addTo(_this.group);
+      this.rows || (this.rows = []);
+      this.rows = _.union(this.rows, rows);
+      return _.each(rows, function(rows) {
+        return rows.group.addTo(_this.group);
       });
     };
 
-    BrokenSquares.prototype._createBrokenSquares = function(startX, startY) {
+    BrokenSquares.prototype._createBrokenSquareRows = function() {
       var result,
         _this = this;
-      result = _.map(_.range(this.gridH()), function(y, idx, list) {
-        return _.map(_.range(_this.gridW()), function(x, idx, list) {
-          var bSquare;
-          bSquare = new BrokenSquare({
-            two: _this.two,
-            size: _this.size()
-          });
-          bSquare.group.translation.set((startX || 0) + x * _this.colW(), (startY || 0) + y * _this.rowH());
-          return bSquare;
+      return result = _.map(_.range(this.gridH()), function(y, idx, list) {
+        var row;
+        row = new BrokenSquareRow({
+          two: _this.two,
+          size: _this.size()
         });
+        row.group.translation.set(0, y * _this.rowH());
+        return row;
       });
-      return _.flatten(result);
     };
 
     return BrokenSquares;

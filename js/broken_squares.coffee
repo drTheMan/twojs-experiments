@@ -5,7 +5,7 @@ class @BrokenSquaresOps extends Backbone.Model
 
   init: ->
     @destroy()
-    @target = @options.target || @options.brokenSqaures || @options.broken_squares || new BrokenSquares({two: @options.two})
+    @target = @options.target || @options.brokenSquares || @options.broken_squares || new BrokenSquares({two: @options.two})
     @two = @target.two
     @target.on 'destroy', (-> @destroy()), this
 
@@ -14,7 +14,7 @@ class @BrokenSquaresOps extends Backbone.Model
     @target = @two = undefined
 
   randomBreak: (likeliness, broken_squares) ->
-    _.each (broken_squares || @target.broken_squares), (broken_square) ->
+    _.each (broken_squares || @target.broken_squares()), (broken_square) ->
       _.each broken_square.triangles, (triangle) ->
         if Math.random() > (likeliness || 0.4)
           triangle.opacity = 0.0
@@ -24,14 +24,22 @@ class @BrokenSquaresOps extends Backbone.Model
     # setTimeout (=> @randomBreak()), 3000
 
   scrollTween: ->
-    height = @target.gridH() * @target.rowH()
-    squares = @target._createBrokenSquares(0, height-@target.group.translation.y)
-    @randomBreak 0.4, squares
-    @target.addBrokenSquares squares
+    # amount to scroll
+    height = @target.rowH()
+    # create new row of broken squares
+    row = new BrokenSquareRow(two: @target.two, size: @target.size())
+    # move them to the bottom of the screen
+    row.group.translation.set(0, @target.rows.length*@target.rowH())
+    # add them to the target's array
+    @target.rows.push(row)
+    # make them broken
+    @randomBreak 0.4, row.broken_squares
+    # add them to the scene
+    row.group.addTo @target.group   
 
-    console.log [@two.height, height]
+    # make scrolling tween
     tween = new TWEEN.Tween( @target.group.translation )
-      .to({y: @target.group.translation.y-height}, 2500)
+      .to({y: @target.group.translation.y-height}, 800)
       .easing( TWEEN.Easing.Linear.None )
 
 
@@ -43,6 +51,7 @@ class @BrokenSquaresOps extends Backbone.Model
     #     @target.broken_squares = _.map _.range(@target.broken_squares.length/2, @target.broken_squares.length/2), (idx) =>
     #       @target.broken_squares[idx]
 
+    return tween
 
 
 class BrokenSquares extends Backbone.Model
@@ -55,14 +64,14 @@ class BrokenSquares extends Backbone.Model
     @destroy()
     # @polygon = @_createPolygon()
     @group = @two.makeGroup()
-    @addBrokenSquares @_createBrokenSquares()
+    @addBrokenSquareRows @_createBrokenSquareRows()
 
   destroy: ->
     @trigger 'destroy', this
 
-    if @broken_squares
-      _.each @broken_squares, (broken_square) -> broken_square.destroy()
-      @broken_squares = undefined
+    if @rows
+      _.each @rows, (row) -> row.destroy()
+      @rows = undefined
 
     if @group
       @two.remove @group
@@ -75,19 +84,21 @@ class BrokenSquares extends Backbone.Model
   rowH: -> @size() + @rowSpacing()
   gridW: -> @two.width / @colW() + 1
   gridH: -> @two.height / @rowH() + 1
+  broken_squares: ->
+    _.flatten _.map (@rows || []), (row) ->
+      row.broken_squares
 
-  addBrokenSquares: (broken_squares) ->
-    @broken_squares ||= []
-    @broken_squares = _.union @broken_squares, broken_squares
-    _.each broken_squares, (broken_square) => broken_square.group.addTo @group
+  addBrokenSquareRows: (rows) ->
+    @rows ||= []
+    @rows = _.union @rows, rows
+    _.each rows, (rows) => rows.group.addTo @group
 
-  _createBrokenSquares: (startX, startY) ->
+  _createBrokenSquareRows: ->
     result = _.map _.range(@gridH()), (y, idx, list) =>
-      _.map _.range(@gridW()), (x, idx, list) =>
-        bSquare = new BrokenSquare(two: @two, size: @size())
-        bSquare.group.translation.set((startX || 0) + x * @colW(), (startY || 0) + y * @rowH())
-        bSquare
-    return _.flatten result
+      row = new BrokenSquareRow(two: @two, size: @size())
+      row.group.translation.set(0, y * @rowH())
+      row
+
 
 class BrokenSquare extends Backbone.Model
   constructor: (_opts) ->
