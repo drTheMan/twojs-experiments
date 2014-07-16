@@ -13,15 +13,36 @@ class @BrokenSquaresOps extends Backbone.Model
     # not much to do here
     @target = @two = undefined
 
-  randomBreak: ->
-    _.each @target.broken_squares, (broken_square) ->
+  randomBreak: (likeliness, broken_squares) ->
+    _.each (broken_squares || @target.broken_squares), (broken_square) ->
       _.each broken_square.triangles, (triangle) ->
-        if Math.random() > 0.5
+        if Math.random() > (likeliness || 0.4)
           triangle.opacity = 0.0
         else
           triangle.opacity = 1.0
 
-    setTimeout (=> @randomBreak()), 3000
+    # setTimeout (=> @randomBreak()), 3000
+
+  scrollTween: ->
+    height = @target.gridH() * @target.rowH()
+    squares = @target._createBrokenSquares(0, height-@target.group.translation.y)
+    @randomBreak 0.4, squares
+    @target.addBrokenSquares squares
+
+    console.log [@two.height, height]
+    tween = new TWEEN.Tween( @target.group.translation )
+      .to({y: @target.group.translation.y-height}, 2500)
+      .easing( TWEEN.Easing.Linear.None )
+
+
+    # tween.onComplete =>
+    #   if @trigger 'scrollTweenComplete', tween
+    #     _.each _.range(@target.broken_squares.length/2), (idx) =>
+    #       console.log 'removing sq'
+    #       @target.two.remove @target.broken_squares[idx].group
+    #     @target.broken_squares = _.map _.range(@target.broken_squares.length/2, @target.broken_squares.length/2), (idx) =>
+    #       @target.broken_squares[idx]
+
 
 
 class BrokenSquares extends Backbone.Model
@@ -34,8 +55,7 @@ class BrokenSquares extends Backbone.Model
     @destroy()
     # @polygon = @_createPolygon()
     @group = @two.makeGroup()
-    @broken_squares = @_createBrokenSquares()
-    _.each @broken_squares, (broken_square) => broken_square.group.addTo @group
+    @addBrokenSquares @_createBrokenSquares()
 
   destroy: ->
     @trigger 'destroy', this
@@ -48,27 +68,26 @@ class BrokenSquares extends Backbone.Model
       @two.remove @group
       @group = undefined
 
+  size: -> @options.size || 50
   colSpacing: -> @options.colSpacing || 30
   rowSpacing: -> @options.rowSpacing || 30
+  colW: -> @size() + @colSpacing()
+  rowH: -> @size() + @rowSpacing()
+  gridW: -> @two.width / @colW() + 1
+  gridH: -> @two.height / @rowH() + 1
 
-  _createBrokenSquares: ->
-    broken_squares = []
+  addBrokenSquares: (broken_squares) ->
+    @broken_squares ||= []
+    @broken_squares = _.union @broken_squares, broken_squares
+    _.each broken_squares, (broken_square) => broken_square.group.addTo @group
 
-    y = 0
-    while y < @two.height
-      x = 0
-      while x < @two.width
-        bSquare = new BrokenSquare(two: @two)
-        bSquare.group.translation.set(x,y)
-        broken_squares = _.union(broken_squares, [bSquare])
-        x += bSquare.width() + @colSpacing()
-      y += bSquare.height() + @rowSpacing()
-    return broken_squares
-
-
-
-    [new BrokenSquare(two: @two)]
-
+  _createBrokenSquares: (startX, startY) ->
+    result = _.map _.range(@gridH()), (y, idx, list) =>
+      _.map _.range(@gridW()), (x, idx, list) =>
+        bSquare = new BrokenSquare(two: @two, size: @size())
+        bSquare.group.translation.set((startX || 0) + x * @colW(), (startY || 0) + y * @rowH())
+        bSquare
+    return _.flatten result
 
 class BrokenSquare extends Backbone.Model
   constructor: (_opts) ->
@@ -95,8 +114,8 @@ class BrokenSquare extends Backbone.Model
       @two.remove @group
       @group = undefined
 
-  width: -> @options.width || 50
-  height: -> @options.height || 50
+  width: -> @options.width || @options.size || 50
+  height: -> @options.height || @options.size || 50
 
   # 0 --- 1 --- 2
   # | \   |   / |
@@ -131,3 +150,41 @@ class BrokenSquare extends Backbone.Model
       new Two.Polygon([coords[4], coords[5], coords[8]], false, false),
     ]
 
+class BrokenSquareRow extends Backbone.Model
+  constructor: (_opts) ->
+    @options = _opts
+    @two = _opts.two
+    @init()
+
+  init: ->
+    @destroy()
+    @group = @two.makeGroup()
+    @broken_squares = @_create()
+    _.each @broken_squares, (broken_square) => broken_square.group.addTo @group
+    @group.fill = '#FFFFFF'
+    @group.noStroke()
+
+  destroy: ->
+    @trigger 'destroy'
+
+    if @broken_squares
+      _.each @broken_squares, (broken_square) => broken_square.destroy()
+      @broken_squares = undefined
+
+    if @group
+      @two.remove @group
+      @group = undefined
+
+  size: -> @options.size || 50
+  colSpacing: -> @options.colSpacing || 30
+  rowSpacing: -> @options.rowSpacing || 30
+  colW: -> @size() + @colSpacing()
+  rowH: -> @size() + @rowSpacing()
+  gridW: -> @two.width / @colW() + 1
+  gridH: -> @two.height / @rowH() + 1
+
+  _create: ->
+    _.map _.range(@gridW()), (x) =>
+      bSquare = new BrokenSquare(two: @two, size: @size())
+      bSquare.group.translation.set(x*@colW(), 0)
+      bSquare

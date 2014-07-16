@@ -84,6 +84,11 @@
           return _this.trigger('breaksquares');
         }
       }, 'BreakSquares');
+      folder.add({
+        ScrollSquares: function() {
+          return _this.trigger('scrollsquares');
+        }
+      }, 'ScrollSquares');
       return folder.open();
     };
 
@@ -157,9 +162,14 @@
           return _this._triGridOps.lonelyTravelerTween().start();
         }
       });
-      return this.app_ui.on('breaksquares', function() {
+      this.app_ui.on('breaksquares', function() {
         if (_this._brokenSquaresOps) {
           return _this._brokenSquaresOps.randomBreak();
+        }
+      });
+      return this.app_ui.on('scrollsquares', function() {
+        if (_this._brokenSquaresOps) {
+          return _this._brokenSquaresOps.scrollTween().start();
         }
       });
     };

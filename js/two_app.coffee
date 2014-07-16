@@ -23,6 +23,7 @@ class @AppUi extends Backbone.Model
     folder.add({Rings: => @trigger 'scale'}, 'Rings')
     folder.add({Traveler: => @trigger 'traveler'}, 'Traveler')
     folder.add({BreakSquares: => @trigger 'breaksquares'}, 'BreakSquares')
+    folder.add({ScrollSquares: => @trigger 'scrollsquares'}, 'ScrollSquares')
     folder.open()
 
 class @TwoApp
@@ -53,6 +54,7 @@ class @TwoApp
     @app_ui.on 'scale', => @ringer_operations.scale() if @ringer_operations
     @app_ui.on 'traveler', => @_triGridOps.lonelyTravelerTween().start() if @_triGridOps
     @app_ui.on 'breaksquares', => @_brokenSquaresOps.randomBreak() if @_brokenSquaresOps
+    @app_ui.on 'scrollsquares', => @_brokenSquaresOps.scrollTween().start() if @_brokenSquaresOps
 
   _initScene: ->
     @_initBG()
