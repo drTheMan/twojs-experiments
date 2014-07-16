@@ -9,6 +9,9 @@ class @BrokenSquaresOps extends Backbone.Model
     @two = @target.two
     @target.on 'destroy', (-> @destroy()), this
 
+    @on 'scrollTweenComplete', (-> @pickNextScrollTween().start()), this
+    @on 'scrollTweenUpdate', ((i)-> @prepareNextScrollTween() if i>0.9), this
+
   destroy: ->
     # not much to do here
     @target = @two = undefined
@@ -22,6 +25,14 @@ class @BrokenSquaresOps extends Backbone.Model
           triangle.opacity = 1.0
 
     # setTimeout (=> @randomBreak()), 3000
+
+  prepareNextScrollTween: ->
+    @_nextScrollTween ||= @scrollTween()
+
+  pickNextScrollTween: ->
+    result = @prepareNextScrollTween()
+    @_nextScrollTween = undefined
+    return result
 
   scrollTween: ->
     # amount to scroll
@@ -42,6 +53,9 @@ class @BrokenSquaresOps extends Backbone.Model
       .to({y: @target.group.translation.y-height}, 800)
       .easing( TWEEN.Easing.Linear.None )
 
+    tween.onComplete => @trigger 'scrollTweenComplete'
+    tween.onStart => @trigger 'scrollTweenStart'
+    tween.onUpdate (i) => @trigger 'scrollTweenUpdate', i
 
     # tween.onComplete =>
     #   if @trigger 'scrollTweenComplete', tween

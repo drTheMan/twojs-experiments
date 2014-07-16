@@ -18,8 +18,16 @@
         two: this.options.two
       });
       this.two = this.target.two;
-      return this.target.on('destroy', (function() {
+      this.target.on('destroy', (function() {
         return this.destroy();
+      }), this);
+      this.on('scrollTweenComplete', (function() {
+        return this.pickNextScrollTween().start();
+      }), this);
+      return this.on('scrollTweenUpdate', (function(i) {
+        if (i > 0.9) {
+          return this.prepareNextScrollTween();
+        }
       }), this);
     };
 
@@ -39,8 +47,20 @@
       });
     };
 
+    BrokenSquaresOps.prototype.prepareNextScrollTween = function() {
+      return this._nextScrollTween || (this._nextScrollTween = this.scrollTween());
+    };
+
+    BrokenSquaresOps.prototype.pickNextScrollTween = function() {
+      var result;
+      result = this.prepareNextScrollTween();
+      this._nextScrollTween = void 0;
+      return result;
+    };
+
     BrokenSquaresOps.prototype.scrollTween = function() {
-      var height, row, tween;
+      var height, row, tween,
+        _this = this;
       height = this.target.rowH();
       row = new BrokenSquareRow({
         two: this.target.two,
@@ -53,6 +73,15 @@
       tween = new TWEEN.Tween(this.target.group.translation).to({
         y: this.target.group.translation.y - height
       }, 800).easing(TWEEN.Easing.Linear.None);
+      tween.onComplete(function() {
+        return _this.trigger('scrollTweenComplete');
+      });
+      tween.onStart(function() {
+        return _this.trigger('scrollTweenStart');
+      });
+      tween.onUpdate(function(i) {
+        return _this.trigger('scrollTweenUpdate', i);
+      });
       return tween;
     };
 
